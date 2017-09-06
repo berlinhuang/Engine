@@ -9,3 +9,9 @@ target_link_libraries(MyTimestamp engine)
 
 add_executable(MyThread MyThread.cpp)
 target_link_libraries(MyThread engine)
+
+add_executable(MyThreadPool MyThreadPool.cpp)
+target_link_libraries(MyThreadPool engine)
+
+add_executable(MyDate MyDate.cpp)
+target_link_libraries(MyDate engine)

@@ -6,6 +6,7 @@ set(base_SRCS
         Condition.cpp
         CountDownLatch.cpp
         ThreadPool.cpp
+        Date.cpp
         )
 add_library(engine ${base_SRCS})
 target_link_libraries(engine pthread)

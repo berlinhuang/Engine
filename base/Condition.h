@@ -5,6 +5,9 @@
 /*
  *
  * 等待原语
+ *
+ * 实现：1.主线程等待子线程完成初始化 2.主线程完成任务后，通知所有子进程执行
+ * 这两种也可以用CountDownLatch实现, CountDownLatch由Condition实现
  */
 #ifndef ENGINE_CONDITION_H
 #define ENGINE_CONDITION_H
