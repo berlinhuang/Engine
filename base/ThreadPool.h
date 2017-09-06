@@ -31,7 +31,7 @@ public:
     void run(const Task& f);
 
 private:
-    bool isFull const;
+    bool isFull() const;
     void runInThread();
     Task take();
 

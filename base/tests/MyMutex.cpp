@@ -7,7 +7,7 @@
 #include <stdlib.h>
 MutexLock g_mutex;
 std::vector<int> g_vec;
-const int kCount = 10*1000*1000
+const int kCount = 10*1000*1000;
 int g_count = 0;
 int foo()
 {
