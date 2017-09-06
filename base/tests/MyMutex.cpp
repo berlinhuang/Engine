@@ -3,6 +3,7 @@
 //
 #include "../Mutex.h"
 #include <vector>
+#include <stdio.h>
 #include <stdlib.h>
 MutexLock g_mutex;
 std::vector<int> g_vec;

@@ -2,11 +2,19 @@
 // Created by root on 17-9-4.
 //
 /**
+ *
+ *
  * 封装临界区（critical section）
  * 临界区在Windows 上是struct CRITICAL_SECTION，是可重入的；
  * 在Linux 下是pthread_mutex_t，默认是不可重入的
  *
- * 可重入锁又叫做递归锁
+ *
+ * 1. raii 资源获取就是初始化  C#的using语句 MutexLock
+ * 2. 非递归的mutex（不可重入）
+ * 3. 不手工调用lock() unlock() 由Guard对象的构造和析构负责，Guard的生命期就是临界区 scoped locking 区域锁
+ *
+ *
+ * 加锁原语 同步原语 保护了临界区
  *
  */
 #ifndef MYTHREAD_MUTEX_H
@@ -81,7 +89,7 @@ private:
 };
 
 
-//封装临界区的进去和退出
+//封装临界区的进去和退出 MutexLockGuard一般是栈上对象,作用域刚好等于临界区
 class MutexLockGuard
 {
 public:
@@ -97,7 +105,7 @@ public:
 private:
     MutexLock& mutex_;
 };
-
+#define MutexLockGuard(x) static_assert(false, "missing mutex guard var name");
 
 
 #endif //MYTHREAD_MUTEX_H

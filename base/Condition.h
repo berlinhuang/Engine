@@ -2,6 +2,10 @@
 // Created by root on 17-9-5.
 //
 
+/*
+ *
+ * 等待原语
+ */
 #ifndef ENGINE_CONDITION_H
 #define ENGINE_CONDITION_H
 #include "./Mutex.h"

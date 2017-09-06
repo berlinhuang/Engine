@@ -31,6 +31,7 @@ void CountDownLatch::wait()
 void CountDownLatch::countDown()
 {
     MutexLockGuard lock(mutex_);
+    //MutexLockGard(mutex) //遗漏变量名产生一个临时对象又马上销毁了 结果没有锁住临界区
     --count_;
     if(count_==0)
     {
