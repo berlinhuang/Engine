@@ -37,8 +37,16 @@ public:
 
     T take()
     {
+        MutexLockGuard lock(mutex_);
+        while(queue_.empty())
+        {
+            notEmpty_.wait();
+        }
+        assert(!queue_.empty());
+        T front(queue_.front());
 
-
+        queue_.pop_front();
+        return front;
     }
 
     size_t size() const
