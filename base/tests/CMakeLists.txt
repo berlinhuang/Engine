@@ -15,3 +15,6 @@ target_link_libraries(MyThreadPool engine)
 
 add_executable(MyDate MyDate.cpp)
 target_link_libraries(MyDate engine)
+
+add_executable(MySingleton MySingleton.cpp)
+target_link_libraries(MySingleton engine)
