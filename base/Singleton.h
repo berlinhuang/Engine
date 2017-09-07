@@ -2,6 +2,10 @@
 // Created by root on 17-9-7.
 //
 
+/*
+ * thread safe singleton
+ *
+ */
 #ifndef ENGINE_SINGLETON_H
 #define ENGINE_SINGLETON_H
 #include <stdlib.h>
