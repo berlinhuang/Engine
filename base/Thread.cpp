@@ -97,11 +97,18 @@ struct ThreadData
 
 void Thread::setDefaultName()
 {
+    int num = numCreated_.incrementAndGet();
     if(name_.empty())
     {
-
+        char buf[32];
+        snprintf(buf,sizeof buf, "Thread%d", num);
+        name_ = buf;
     }
 }
+
+
+AtomicInt32 Thread::numCreated_;
+
 
 Thread::Thread( const ThreadFunc& func, const string & n )
 :pthreadId_(0),

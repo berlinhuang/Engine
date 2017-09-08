@@ -19,6 +19,9 @@ target_link_libraries(MyDate engine)
 add_executable(MySingleton MySingleton.cpp)
 target_link_libraries(MySingleton engine)
 
+add_executable(MyAtomic MyAtomic.cpp)
+target_link_libraries(MyAtomic engine)
 
 add_executable(MyBlockingQueue MyBlockingQueue.cpp)
 target_link_libraries(MyBlockingQueue engine)
+

@@ -19,7 +19,8 @@
 #define ENGINE_BLOCKINGQUEUE_H
 
 #include "./Mutex.h"
-
+#include "./Condition.h"
+#include <deque>
 
 template<typename T>
 class BlockingQueue

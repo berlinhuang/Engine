@@ -23,6 +23,11 @@ namespace CurrentThread
         return t_cachedTid;//更多的情况下是t_cachedTid ~= 0
     }
     bool isMainThread();
+
+    inline const char* name()
+    {
+        return t_threadName;
+    }
 }
 
 

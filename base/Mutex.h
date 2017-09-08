@@ -48,7 +48,7 @@ public:
     void lock()
     {
         pthread_mutex_lock(&mutex_);
-        assertLocked();
+        assignHolder();
     }
     void unlock()
     {
