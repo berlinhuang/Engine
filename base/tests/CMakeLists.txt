@@ -31,3 +31,6 @@ target_link_libraries(MyThreadLocalSingleton engine)
 add_executable(MyThreadLocal MyThreadLocal.cpp)
 target_link_libraries(MyThreadLocal engine)
 
+add_executable(MyLogStream MyLogStream.cpp)
+target_link_libraries(MyLogStream engine)
+
