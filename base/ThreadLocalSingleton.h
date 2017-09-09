@@ -8,7 +8,9 @@
 #define ENGINE_THREADLOCALSINGLETON_H
 
 #include <assert.h>
+#include <pthread.h>
 
+template <typename T>
 class ThreadLocalSingleton
 {
 public:
@@ -53,7 +55,7 @@ private:
             pthread_key_delete(pkey_);
         }
 
-        void set(T* newobj)
+        void set(T* newObj)
         {
             assert(pthread_getspecific(pkey_)==NULL);
             pthread_setspecific(pkey_,newObj);
@@ -75,4 +77,4 @@ template <typename T>
 __thread T* ThreadLocalSingleton<T>::t_value_ = 0;
 
 template<typename T>
-typename THreadLocalSingleton<T>::Deleter ThreadLocalSingleton<T>::deleter_;
+typename ThreadLocalSingleton<T>::Deleter ThreadLocalSingleton<T>::deleter_;
