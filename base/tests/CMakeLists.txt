@@ -25,3 +25,9 @@ target_link_libraries(MyAtomic engine)
 add_executable(MyBlockingQueue MyBlockingQueue.cpp)
 target_link_libraries(MyBlockingQueue engine)
 
+add_executable(MyThreadLocalSingleton MyThreadLocalSingleton.cpp)
+target_link_libraries(MyThreadLocalSingleton engine)
+
+add_executable(MyThreadLocal MyThreadLocal.cpp)
+target_link_libraries(MyThreadLocal engine)
+
