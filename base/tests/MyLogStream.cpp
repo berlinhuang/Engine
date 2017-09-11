@@ -4,6 +4,8 @@
 #include "./../LogStream.h"
 #include "./../Timestamp.h"
 #include <iostream>
+#include <sstream>
+#include <stdio.h>
 
 const size_t N = 1000000;
 
@@ -21,24 +23,48 @@ void benchPrintf(const char* fmt)
 }
 
 
+template<typename T>
+void benchStringStream()
+{
+    Timestamp start(Timestamp::now());
+    std::ostringstream os;
+
+    for (size_t i = 0; i < N; ++i)
+    {
+        os << (T)(i);
+        os.seekp(0, std::ios_base::beg);
+    }
+    Timestamp end(Timestamp::now());
+
+    printf("benchStringStream %f\n", timeDifference(end, start));
+}
 
 
 
-
-
-
-
-
+template <typename T>
+void benchLogStream()
+{
+    Timestamp start(Timestamp::now());
+    LogStream os;
+    for(size_t i = 0; i<N;++i)
+    {
+        os<<(T)(i);
+        os.resetBuffer();
+    }
+    Timestamp end(Timestamp::now());
+    printf("benchLogStream %f\n",timeDifference(end,start));
+}
 
 
 
 int main()
 {
 
-benchPrintf<int>("%d");
-
-
-
+    benchPrintf<int>("%d");
+    puts("int");
+    benchPrintf<int>("%d");
+    benchStringStream<int>();
+    benchLogStream<int>();
 
 
 

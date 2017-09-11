@@ -7,6 +7,45 @@
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/is_arithmetic.hpp>
 #include <stdio.h>
+#include <algorithm>
+
+
+template <typename T>
+size_t  convert(char buf[], T value)
+{
+    T i = value;
+    char* p = buf;
+    do
+    {
+
+    }while( i!=0 );
+    if( value < 0 )
+    {
+        *p++ = '-';
+    }
+    *p='\n';
+    std::reverse(buf,p);
+    return p-buf;
+}
+
+
+template class FixedBuffer<kSmallBuffer>;
+template class FixedBuffer<kLargeBuffer>;
+
+//template <int SIZE>
+//void char* FixedBuffer<SIZE>
+
+template <int SIZE>
+void FixedBuffer<SIZE>::cookieStart()
+{
+
+}
+
+template<int SIZE>
+void FixedBuffer<SIZE>::cookieEnd()
+{
+}
+
 
 template <typename T>
 Fmt::Fmt(const char* fmt, T val)
@@ -17,3 +56,29 @@ Fmt::Fmt(const char* fmt, T val)
     length_ = snprintf(buf_, sizeof buf_, fmt,val);
     assert(static_cast<size_t >(length_) < sizeof buf_);
 }
+
+template <typename T>
+void LogStream::formatInterger(T v)
+{
+    if(buffer_.avail()>= kMaxNumbericSize)
+    {
+        size_t len = convert(buffer_.current(),v);
+        buffer_.add(len);
+    }
+}
+
+
+LogStream& LogStream::operator<<(int v)
+{
+    formatInterger(v);
+    return *this;
+}
+
+LogStream& LogStream::operator<<(unsigned int v)
+{
+    formatInterger(v);
+    return *this;
+}
+
+template Fmt::Fmt(const char* fmt, int);
+template Fmt::Fmt(const char* fmt, unsigned int);
