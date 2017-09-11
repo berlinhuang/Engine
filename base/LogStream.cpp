@@ -34,7 +34,8 @@ size_t  convert(char buf[], T value)
     return p-buf;
 }
 
-
+//类模板的显示实例化 template class [类模板名]<实际类型列表>
+//对于类模板而言，不管是否生成一个模板类的对象，都可以直接通过显示实例化声明将类模板实例化
 template class FixedBuffer<kSmallBuffer>;//explicit instantiation. 显式实例化
 template class FixedBuffer<kLargeBuffer>;
 
@@ -86,5 +87,7 @@ LogStream& LogStream::operator<<(unsigned int v)
     return *this;
 }
 
+// 函数模板的显示实例化 template [函数返回类型] [函数模板名]<实际类型列表>（函数参数列表）
+// 显示实例化声明将函数模板实例化 explicit instantiations
 template Fmt::Fmt(const char* fmt, int);
 template Fmt::Fmt(const char* fmt, unsigned int);
