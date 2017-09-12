@@ -46,35 +46,35 @@ public:
     }
     void append(const char* buf, size_t len)
     {
-        if(implicit_cast<size_t>(avail())>len)
+        if(implicit_cast<size_t>(avail())>len) //如果可用数据足够，就拷贝过去，同时移动当前指针
         {
             memcpy(cur_, buf, len);
             cur_ += len;
         }
     }
-    int avail() const { return static_cast<int>(end() - cur_);}
+    int avail() const { return static_cast<int>(end() - cur_);}//返回剩余可用地址
 
-    const char* data() const { return data_;}
+    const char* data() const { return data_;}//返回首地址
     int length() const { return static_cast<int>( cur_ - data_);}
 
-    char* current() { return cur_;}
-    void add(size_t len){ cur_+ len;}
+    char* current() { return cur_;}//返回当前数据末端地址
+    void add(size_t len){ cur_+ len;}//cur前移
 
-    void reset(){ cur_=data_;}
-    void bzero(){ ::bzero(data_, sizeof data_);}
+    void reset(){ cur_=data_;}//重置，不清数据，只需要让cur指回首地址即可
+    void bzero(){ ::bzero(data_, sizeof data_);} //清零
 
     const char* debugString();
     string toString() const { return string(data_, length()); }
 
 private:
-    const char * end() const {return data_+sizeof data_;}
+    const char * end() const {return data_+sizeof data_;} //返回尾指针
 
     static void cookieStart();
     static void cookieEnd();
 
     void (*cookie_)();
-    char data_[SIZE];
-    char* cur_;
+    char data_[SIZE];//缓冲区数组
+    char* cur_; //cur永远指向已有数据的最右端，data->cur->end结构?
 
 };
 
