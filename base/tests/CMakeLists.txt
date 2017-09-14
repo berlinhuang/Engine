@@ -37,3 +37,6 @@ target_link_libraries(MyLogStream engine)
 add_executable(MyLogging MyLogging.cpp)
 target_link_libraries(MyLogging engine)
 
+add_executable(MyTimeZone MyTimestamp.cpp)
+target_link_libraries(MyTimestamp engine)
+

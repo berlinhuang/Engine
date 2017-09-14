@@ -130,6 +130,8 @@ public:
 
     self& operator<<( const unsigned char* str)
     {
+        //强制类型转换
+        //type-id 必须是一个指针、引用、算术类型、函数指针或者成员指针。
         return operator<<(reinterpret_cast<const char*>(str));
     }
 

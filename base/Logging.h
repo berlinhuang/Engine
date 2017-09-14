@@ -35,10 +35,10 @@ public:
         template <int N>
         inline SourceFile(const char (&arr)[N]):data_(arr), size_(N-1)
         {
-            const char* slash = strrchr(data_, '/');
+            const char* slash = strrchr(data_, '/');//找一个字符'/'在另一个字符串data_中末次出现的位置
             if(slash)
             {
-                data_ = slash + 1;
+                data_ = slash + 1;//data_ is a pointer which is at begin of file name
                 size_ -= static_cast<int>(data_- arr);
             }
         }
