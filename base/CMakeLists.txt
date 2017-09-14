@@ -8,6 +8,7 @@ set(base_SRCS
         ThreadPool.cpp
         Date.cpp
         LogStream.cpp
+        Logging.cpp
         )
 add_library(engine ${base_SRCS})
 target_link_libraries(engine pthread)

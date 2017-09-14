@@ -28,6 +28,20 @@ namespace CurrentThread
     {
         return t_threadName;
     }
+
+    inline const char* tidString()//for logging
+    {
+        return t_tidString;
+    }
+
+    inline int tidStringLength() //for logging
+    {
+        return t_tidStringLength;
+    }
+
+
+
+
 }
 
 
