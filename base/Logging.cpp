@@ -42,6 +42,7 @@ public:
 inline LogStream& operator<<(LogStream& s, T v)
 {
     s.append(v.str_, v.len_);
+    return s;
 }
 
 inline LogStream& operator<<(LogStream& s, const Logger::SourceFile& v)
@@ -150,7 +151,7 @@ Logger::Logger( SourceFile file, int line):impl_(INFO, 0, file, line)
 Logger::Logger( SourceFile file, int line, LogLevel level):impl_(level, 0, file, line)
 {
 }
-
+//SourceFile file = __FILE__
 Logger::Logger( SourceFile file, int line, LogLevel level, const char* func):impl_(level, 0, file, line)
 {
     impl_.stream_<<func<<' ';
