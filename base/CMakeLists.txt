@@ -10,6 +10,8 @@ set(base_SRCS
         LogStream.cpp
         Logging.cpp
         TimeZone.cpp
+        FileUtil.cpp
+        LogFile.cpp
         )
 add_library(engine ${base_SRCS})
 target_link_libraries(engine pthread)

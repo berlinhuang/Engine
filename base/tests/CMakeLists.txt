@@ -40,3 +40,8 @@ target_link_libraries(MyLogging engine)
 add_executable(MyTimeZone MyTimestamp.cpp)
 target_link_libraries(MyTimestamp engine)
 
+add_executable(MyFileUtil MyFileUtil.cpp)
+target_link_libraries(MyFileUtil engine)
+
+add_executable(MyLogFile MyLogFile.cpp)
+target_link_libraries(MyLogFile engine)
