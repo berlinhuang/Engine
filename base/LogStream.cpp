@@ -108,6 +108,18 @@ LogStream& LogStream::operator<<(unsigned int v)
     return *this;
 }
 
+LogStream& LogStream::operator<<(long v)
+{
+    formatInterger(v);
+    return *this;
+}
+
+LogStream& LogStream::operator<<(unsigned long v)
+{
+    formatInterger(v);
+    return *this;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 

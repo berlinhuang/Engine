@@ -94,9 +94,10 @@ Logger::Impl::Impl(LogLevel level, int savedErrno, const SourceFile &file, int l
 
 void Logger::Impl::formatTime()
 {
-    int64_t microSeconddsSinceEpoch = time_.microSecondsSinceEpoch();
-    time_t seconds = static_cast<time_t>(microSeconddsSinceEpoch/Timestamp::kMicroSecondsPersecond);
-    int microseconds = static_cast<int>(microSeconddsSinceEpoch%Timestamp::kMicroSecondsPersecond);
+    int64_t microSecondsSinceEpoch = time_.microSecondsSinceEpoch();
+    time_t seconds = static_cast<time_t>(microSecondsSinceEpoch/Timestamp::kMicroSecondsPersecond);
+    int microseconds = static_cast<int>(microSecondsSinceEpoch%Timestamp::kMicroSecondsPersecond);
+//    printf("%ld\n%ld\n",microSecondsSinceEpoch,seconds);
     if(seconds != t_lastSecond)
     {
         t_lastSecond = seconds;
@@ -118,18 +119,18 @@ void Logger::Impl::formatTime()
                           tm_time.tm_sec);
         assert(len == 17);
         (void)len;
-        if(g_logTimeZone.valid())
-        {
-            Fmt us(".%06d ",microseconds);
-            assert(us.length() == 8);
-            stream_<<T(t_time, 7)<<T(us.data(),8);
-        }
-        else
-        {
-            Fmt us(".%06dZ ", microseconds);
-            assert(us.length() == 9);
-            stream_<<T(t_time, 17)<<T(us.data(), 9);
-        }
+    }
+    if(g_logTimeZone.valid())
+    {
+        Fmt us(".%06d ",microseconds);
+        assert(us.length() == 8);
+        stream_<<T(t_time, 7)<<T(us.data(),8);
+    }
+    else
+    {
+        Fmt us(".%06dZ ", microseconds);
+        assert(us.length() == 9);
+        stream_<<T(t_time, 17)<<T(us.data(), 9);
     }
 }
 
@@ -179,7 +180,17 @@ Logger::~Logger()
     }
 }
 
+void Logger::setOutPut(OutputFunc out)
+{
+    g_output = out;
 
+}
+
+
+void Logger::setFlush(FlushFunc flush)
+{
+    g_flush = flush;
+}
 
 
 
