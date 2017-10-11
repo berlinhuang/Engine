@@ -58,7 +58,7 @@ public:
     int length() const { return static_cast<int>( cur_ - data_);}
 
     char* current() { return cur_;}//返回当前数据末端地址
-    void add(size_t len){ cur_+ len;}//cur前移
+    void add(size_t len){ cur_+= len;}//cur前移
 
     void reset(){ cur_=data_;}//重置，不清数据，只需要让cur指回首地址即可
     void bzero(){ ::bzero(data_, sizeof data_);} //清零

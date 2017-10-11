@@ -112,7 +112,7 @@ inline Logger::LogLevel Logger::logLevel()
     Logger(__FILE__, __LINE__, Logger::DEBUG, __func__).stream()
 
 #define LOG_INFO if(Logger::logLevel()<= Logger::INFO) \
-    Logger(__FILE__, __LINE__, Logger::INFO, __func__).stream()
+    Logger(__FILE__, __LINE__).stream()
 
 
 #define LOG_WARN Logger(__FILE__, __LINE__, Logger::WARN).stream()

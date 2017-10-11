@@ -20,5 +20,10 @@ int main()
     pool.start(5);
 
     pool.run(logInThread);
-
+//    pool.run(logInThread);
+//    pool.run(logInThread);
+//    pool.run(logInThread);
+//    pool.run(logInThread);
+//
+//    LOG_TRACE<<"trace";
 }

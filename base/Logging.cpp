@@ -76,7 +76,11 @@ Logger::FlushFunc  g_flush = defaultFlush;
 TimeZone g_logTimeZone;
 
 Logger::Impl::Impl(LogLevel level, int savedErrno, const SourceFile &file, int line)
-:time_(Timestamp::now()),stream_(),level_(level),line_(line),basename_(file)
+:time_(Timestamp::now()),
+ stream_(),
+ level_(level),
+ line_(line),
+ basename_(file)
 {
     formatTime();
     CurrentThread::tid();
@@ -141,10 +145,11 @@ void Logger::Impl::finish()
 {
     //self& operator<<(char v)
 
-    stream_<<" - "<< basename_<<":"<<line_<<"\n";
+    stream_<<" - "<< basename_<<":"<<line_<<'\n';
 }
 
-Logger::Logger( SourceFile file, int line):impl_(INFO, 0, file, line)
+Logger::Logger( SourceFile file, int line)
+        :impl_(INFO, 0, file, line)
 {
 }
 
