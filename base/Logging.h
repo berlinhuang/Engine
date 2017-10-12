@@ -114,6 +114,9 @@ inline Logger::LogLevel Logger::logLevel()
 #define LOG_INFO if(Logger::logLevel()<= Logger::INFO) \
     Logger(__FILE__, __LINE__).stream()
 
+const char* strerror_tl(int savedErrno);
+
+
 
 #define LOG_WARN Logger(__FILE__, __LINE__, Logger::WARN).stream()
 #define LOG_ERROR Logger(__FILE__, __LINE__, Logger::ERROR).stream()

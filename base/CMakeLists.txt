@@ -16,6 +16,8 @@ set(base_SRCS
 add_library(engine ${base_SRCS})
 target_link_libraries(engine pthread)
 
+#set_target_properties(engine PROPERTIES COMPILE_FLAGS "-std=c++0x")
+
 
 
 add_subdirectory(tests)
