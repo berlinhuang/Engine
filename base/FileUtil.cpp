@@ -12,7 +12,18 @@
 #include <assert.h>
 #include <sys/stat.h> //::fstat()
 #include <boost/static_assert.hpp>
+FileUtil::AppendFile::AppendFile(StringArg filename)
+:fp_(::fopen(filename.c_str(),"ae")),
+ writtenBytes_(0)
+{
+    assert(fp_);
+    ::setbuffer(fp_,buffer_, sizeof buffer_);
+}
 
+FileUtil::AppendFile::~AppendFile()
+{
+    ::fclose(fp_);
+}
 
 void FileUtil::AppendFile::append(const char* logline, const size_t len)
 {

@@ -12,6 +12,7 @@ set(base_SRCS
         TimeZone.cpp
         FileUtil.cpp
         LogFile.cpp
+        ProcessInfo.cpp
         )
 add_library(engine ${base_SRCS})
 target_link_libraries(engine pthread)

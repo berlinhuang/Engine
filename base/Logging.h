@@ -127,6 +127,4 @@ const char* strerror_tl(int savedErrno);
 
 
 
-
-
 #endif //ENGINE_LOGGING_H
