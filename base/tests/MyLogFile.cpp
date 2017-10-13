@@ -30,11 +30,11 @@ int main(int argc, char* argv[])
 {
     char name[256];
     strncpy(name, argv[0],256);
-    g_logFile.reset(new LogFile(::basename(name),200*1000));
+    g_logFile.reset(new LogFile(::basename(name),200*1000));//删除原来保存的指针，再保存新的指针new LogFile，如果new LogFile是空指针，那scoped_ptr将不持有任何指针
     Logger::setOutPut(outputFunc);
     Logger::setFlush(flushFunc);
     string line = "1234567890 abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ ";
-    for(int i=0;i<10000;++i)
+    for(int i=0;i<100;++i)
     {
         // ./Engine/cmake-build-debug/base/tests/CMakeFiles/MylogFile.20171013-020448.berlin-virtual-machine.16353.log
         LOG_INFO<<line<<i;

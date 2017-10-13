@@ -26,7 +26,7 @@ public:
 
     ~LogFile();
 
-    void append(const char* logline, int len);
+    void append(const char* logline, int len);//将一行长度为len添加到日志文件中
     void flush();
     bool rollFile();
 
@@ -41,7 +41,7 @@ private:
     int count_;
 
     boost::scoped_ptr<MutexLock> mutex_;
-    time_t startOfPeriod_;
+    time_t startOfPeriod_;//开始记录日志时间（调整至零点时间，如12.04:11.24和 11.12.04:12.50，调整零点都是12.04:00.00，是同一天，只用来比较同一天，和日志名无关
     time_t lastRoll_;
     time_t lastFlush_;
     boost::scoped_ptr<FileUtil::AppendFile> file_;//文件智能指针

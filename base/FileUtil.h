@@ -56,7 +56,6 @@ namespace FileUtil
 
 
 
-
     class AppendFile
     {
     public:

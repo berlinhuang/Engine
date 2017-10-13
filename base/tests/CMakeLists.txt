@@ -45,3 +45,6 @@ target_link_libraries(MyFileUtil engine)
 
 add_executable(MyLogFile MyLogFile.cpp)
 target_link_libraries(MyLogFile engine)
+
+add_executable(MyProcessInfo MyProcessInfo.cpp)
+target_link_libraries(MyProcessInfo engine)

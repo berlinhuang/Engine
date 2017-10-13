@@ -82,9 +82,13 @@ Logger::Impl::Impl(LogLevel level, int savedErrno, const SourceFile &file, int l
  line_(line),
  basename_(file)
 {
+    //20171013 02:04:48.686455Z 16353 INFO  1234567890 abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 3173 - MyLogFile.cpp:39
+    //20171013 02:04:48.686455Z
     formatTime();
-    CurrentThread::tid();
+    CurrentThread::tid();//缓存当前线程id
+    //16353
     stream_<< T(CurrentThread::tidString(), CurrentThread::tidStringLength());
+    //INFO
     stream_<< T(LogLevelName[level],6);
     if( savedErrno != 0)
     {
