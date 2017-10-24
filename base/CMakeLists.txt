@@ -14,8 +14,8 @@ set(base_SRCS
         LogFile.cpp
         ProcessInfo.cpp
         )
-add_library(engine ${base_SRCS})
-target_link_libraries(engine pthread)
+add_library(engine_base ${base_SRCS})
+target_link_libraries(engine_base pthread)
 
 #set_target_properties(engine PROPERTIES COMPILE_FLAGS "-std=c++0x")
 
