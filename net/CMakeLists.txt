@@ -1,5 +1,6 @@
 set(net_SRCS
         InetAddress.cpp
+        SocketsOps.cpp
         )
 add_library(engine_net ${net_SRCS})
 target_link_libraries(engine_net pthread)
