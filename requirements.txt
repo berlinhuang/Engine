@@ -1,0 +1,9 @@
+dpkg -l | grep (package name) 检查是否安装了某个包
+
+dpkg -l | grep libboost
+
+sudo apt-get install libboost-test-dev
+
+
+dpkg -S /usr/include/boost/version.hpp  查看boost版本
+libboost1.58-dev:amd64: /usr/include/boost/version.hpp

@@ -10,6 +10,8 @@
 #include "SocketsOps.h"
 #include "Endian.h"
 #include "./../base/Type.h"
+#include "./../base/Logging.h"
+
 namespace sockets
 {
     void toIp(char* buf, size_t size, const struct sockaddr* addr)
@@ -38,6 +40,30 @@ namespace sockets
         assert(size>end);
         snprintf(buf+end,size-end,":%u",port);
     }
+
+
+
+    void fromIpPort( const char* ip, uint16_t port, struct sockaddr_in* addr)
+    {
+        addr->sin_family = AF_INET;
+        addr->sin_port = hostToNetwork16(port);//主机序转成网络字节序
+        if (::inet_pton(AF_INET, ip, &addr->sin_addr) <= 0)//presentation to numeric
+        {
+            LOG_SYSERR << "sockets::fromIpPort";
+        }
+    }
+
+    void fromIpPort( const char* ip, uint16_t port, struct sockaddr_in6* addr)
+    {
+        addr->sin6_family = AF_INET6;
+        addr->sin6_port = hostToNetwork16(port);
+        if (::inet_pton(AF_INET6, ip, &addr->sin6_addr) <= 0)
+        {
+            LOG_SYSERR << "sockets::fromIpPort";
+        }
+    }
+
+
 
 
 
