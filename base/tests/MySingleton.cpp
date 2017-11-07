@@ -35,7 +35,7 @@ private:
 class TestNoDestroy
 {
 public:
-    void no_destroy();
+    void no_destroy(); //no_destroy不存在
     TestNoDestroy()
     {
         printf("tid=%d, constructing TestNoDestroy %p\n",CurrentThread::tid(),this);
@@ -67,6 +67,5 @@ int main()
     cout<<"main thread tid = "<<CurrentThread::tid()<<" "<<&Singleton<Test>::instance()<<" name = "<<Singleton<Test>::instance().name().c_str()<<endl;
 
     Singleton<TestNoDestroy>::instance();
-
     printf("with valgrind, you should see %zd-byte memory leak.\n",sizeof(TestNoDestroy));
 }

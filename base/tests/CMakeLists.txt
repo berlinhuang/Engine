@@ -48,3 +48,5 @@ target_link_libraries(MyLogFile engine_base)
 
 add_executable(MyProcessInfo MyProcessInfo.cpp)
 target_link_libraries(MyProcessInfo engine_base)
+
+add_executable(MySFINAE  MySFINAE.cpp)
