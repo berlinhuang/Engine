@@ -34,7 +34,7 @@ public:
     }
     ~MutexLock()
     {
-        holder_==0;
+        holder_=0;
         pthread_mutex_destroy(&mutex_);
     }
     bool isLockByThisThread() const
