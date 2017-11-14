@@ -120,6 +120,19 @@ LogStream& LogStream::operator<<(unsigned long v)
     return *this;
 }
 
+LogStream& LogStream::operator<<(const void* p)
+{
+    uintptr_t v = reinterpret_cast<uintptr_t>(p);
+    if (buffer_.avail() >= kMaxNumbericSize)
+    {
+        char* buf = buffer_.current();
+        buf[0] = '0';
+        buf[1] = 'x';
+        size_t len = convertHex(buf+2, v);
+        buffer_.add(len+2);
+    }
+    return *this;
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
