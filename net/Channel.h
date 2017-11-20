@@ -9,6 +9,7 @@
 
 class EventLoop;
 
+//Channel的成员函数都只能在IO线程调用，因此更新数据成员不用加锁
 
 class Channel {
 public:

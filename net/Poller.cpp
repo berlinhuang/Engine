@@ -22,12 +22,17 @@ Timestamp Poller::poll(int timeoutMs, ChannelList *activeChannels)
     int numEvents = ::poll(&*pollfds_.begin(),pollfds_.size(),timeoutMs);
     Timestamp now(Timestamp::now());
 
-    if(numEvents>0){
+    if(numEvents>0)
+    {
         LOG_TRACE<<numEvents<<" events happended";
-        fillActiveChannels(numEvents, activeChannels);
-    }else if(numEvents==0){
+        fillActiveChannels(numEvents, activeChannels);//////////// traverse the
+    }
+    else if(numEvents==0)
+    {
         LOG_TRACE<<"nothing happended";
-    }else{
+    }
+    else
+    {
         LOG_SYSERR<<"Poller::poll()";
     }
     return now;
@@ -36,6 +41,7 @@ Timestamp Poller::poll(int timeoutMs, ChannelList *activeChannels)
 
 void Poller::fillActiveChannels(int numEvents, ChannelList *activeChannels) const
 {
+    ////typedef std::vector<struct pollfd> PollFdList;       PollFdList pollfds_;
     for(PollFdList::const_iterator pfd = pollfds_.begin();
         pfd!=pollfds_.end()&&numEvents>0;
         ++pfd)
@@ -43,7 +49,8 @@ void Poller::fillActiveChannels(int numEvents, ChannelList *activeChannels) cons
         if(pfd->revents>0)
         {
             --numEvents;
-            ChannelMap::const_iterator ch = channels_.find(pfd->fd);
+            // typedef std::map<int,Channel*> ChannelMap;//fd -> channel*
+            ChannelMap::const_iterator ch = channels_.find(pfd->fd);// return a iterator
             assert(ch!=channels_.end());
             Channel* channel = ch->second;
             assert(channel->fd() == pfd->fd);

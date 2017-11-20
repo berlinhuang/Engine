@@ -5,3 +5,5 @@ add_test(NAME MyInetAddress COMMAND MyInetAddress)
 add_executable(TestEventLoop TestEventLoop.cpp)
 target_link_libraries(TestEventLoop engine_net engine_base )
 
+add_executable(TestEventLoop3 TestEventLoop3.cpp)
+target_link_libraries(TestEventLoop3 engine_net engine_base )
