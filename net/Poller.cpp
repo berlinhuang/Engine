@@ -71,10 +71,11 @@ void Poller::updateChannel(Channel *channel)
         pfd.fd = channel->fd();
         pfd.events= static_cast<short>(channel->events());
         pfd.revents = 0;
+
         pollfds_.push_back(pfd);
         int idx = static_cast<int>(pollfds_.size())-1;
         channel->set_index(idx);
-        channels_[pfd.fd] = channel;
+        channels_[pfd.fd] = channel; //channels_ (fd -> channel)
     }
     else// 是已有的通道
     {
@@ -91,4 +92,10 @@ void Poller::updateChannel(Channel *channel)
             pfd.fd = -1;
         }
     }
+}
+
+
+void Poller::removeChannel(Channel *channel)
+{
+
 }

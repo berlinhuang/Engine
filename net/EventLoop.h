@@ -7,17 +7,23 @@
 
 #include "./../base/CurrentThread.h"
 #include "./../base/Timestamp.h"
+#include "./../base/Mutex.h"
+#include "./Callbacks.h"
+#include "./TimerId.h"
+
 #include <sys/types.h>
 #include <boost/scoped_ptr.hpp>
 #include <vector>
 
 class Poller;
 class Channel;
-
+class TimerQueue;
 
 class EventLoop {
 
 public:
+    typedef boost::function<void()> Functor;
+
     EventLoop();
     ~EventLoop();
 
@@ -25,6 +31,7 @@ public:
     void loop();
     void quit();
     void updateChannel(Channel* channel);
+    void removeChannel(Channel* channel);
 
     void assertInLoopThread()
     {
@@ -42,6 +49,18 @@ public:
 
     static EventLoop* getEventLoopOfCurrentThread();
 
+    void runInLoop(const Functor& cb);
+
+    void queueInLoop(const Functor& cb);
+
+    TimerId runAt(const Timestamp& time, const TimerCallback& cb);
+
+    TimerId runAfter(double delay, const TimerCallback& cb);
+
+    TimerId runEvery(double interval, const TimerCallback& cb);
+
+    void cancel(TimerId timerId);
+
 private:
     void abortNotInLoopThread();
 
@@ -54,6 +73,16 @@ private:
     typedef std::vector<Channel*> ChannelList;
     ChannelList activeChannels_;
     Timestamp pollReturnTime_;
+
+    boost::scoped_ptr<TimerQueue> timerQueue_;
+
+    bool eventHandling_; /* atomic */
+    bool callingPendingFunctors_; /* atomic */
+
+    Channel* currentActiveChannel_;
+
+    mutable MutexLock mutex_;
+    std::vector<Functor> pendingFunctors_; // @GuardedBy mutex_
 
 };
 

@@ -7,7 +7,9 @@
 #include "./EventLoop.h"
 #include "./Poller.h"
 #include "./Channel.h"
+#include "./TimerQueue.h"
 #include "./../base/Logging.h"
+#include "./../base/Mutex.h"
 
 __thread EventLoop* t_loopInThisThread = 0;// rec eventloop
 
@@ -19,8 +21,14 @@ const int kPollTimeMs = 10000;
 
 EventLoop::EventLoop()
 :looping_(false),
+ quit_(false),
+ eventHandling_(false),
+ callingPendingFunctors_(false),
  threadId_(CurrentThread::tid()),
- poller_(new Poller(this))
+ poller_(new Poller(this)),
+ timerQueue_(new TimerQueue(this)),
+ currentActiveChannel_(NULL)
+
 {
 
     if(t_loopInThisThread)// make sure that one loop per thread
@@ -86,6 +94,62 @@ void EventLoop::updateChannel(Channel* channel)
     poller_->updateChannel(channel);
 }
 
+
+void EventLoop::removeChannel(Channel* channel)
+{
+    assert(channel->ownerLoop() == this);
+    assertInLoopThread();
+    if (eventHandling_)
+    {
+        assert(currentActiveChannel_ == channel ||
+               std::find(activeChannels_.begin(), activeChannels_.end(), channel) == activeChannels_.end());
+    }
+    poller_->removeChannel(channel);
+}
+
+
+void EventLoop::runInLoop(const Functor& cb)
+{
+    if (isInLoopThread())
+    {
+        cb();
+    }
+//    else
+//    {
+//        queueInLoop(cb);
+//    }
+}
+
+//void EventLoop::queueInLoop(const Functor& cb)
+//{
+//    {
+//        MutexLockGuard lock(mutex_);
+//        pendingFunctors_.push_back(cb);
+//    }
+//
+//    if (!isInLoopThread() || callingPendingFunctors_)
+//    {
+//        wakeup();
+//    }
+//}
+
+
+TimerId EventLoop::runAt(const Timestamp& time, const TimerCallback& cb)
+{
+    return timerQueue_->addTimer(cb, time, 0.0);
+}
+
+TimerId EventLoop::runAfter(double delay, const TimerCallback& cb)
+{
+    Timestamp time(addTime(Timestamp::now(), delay));
+    return runAt(time, cb);
+}
+
+TimerId EventLoop::runEvery(double interval, const TimerCallback& cb)
+{
+    Timestamp time(addTime(Timestamp::now(),interval));
+    return timerQueue_->addTimer(cb,time,interval);
+}
 
 
 

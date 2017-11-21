@@ -59,10 +59,23 @@ private:
 };
 
 
+inline bool operator<(Timestamp lhs, Timestamp rhs)
+{
+    return lhs.microSecondsSinceEpoch() < rhs.microSecondsSinceEpoch();
+}
+
+
 inline double timeDifference(Timestamp high, Timestamp low)
 {
     int64_t  diff=high.microSecondsSinceEpoch() - low.microSecondsSinceEpoch();
     return static_cast<double>(diff)/Timestamp::kMicroSecondsPersecond;
+}
+
+
+inline Timestamp addTime(Timestamp timestamp, double seconds)
+{
+    int64_t  delta = static_cast<int64_t>(seconds * Timestamp::kMicroSecondsPersecond);
+    return Timestamp(timestamp.microSecondsSinceEpoch() + delta);
 }
 
 #endif //MYTHREAD_TIMESTAMP_H
