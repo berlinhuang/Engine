@@ -3,8 +3,9 @@
 //
 
 #include "Channel.h"
-#include <poll.h>
+#include "EventLoop.h" // loop_->updateChannel
 #include "../base/Logging.h"
+#include <poll.h>
 
 
 const int Channel::kNoneEvent = 0;
@@ -26,7 +27,7 @@ Channel::Channel(EventLoop *loop, int fd)
 
 void Channel::update()
 {
-    //loop_->updateChannel(this);
+    loop_->updateChannel(this);
 }
 
 

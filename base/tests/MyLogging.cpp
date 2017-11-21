@@ -36,6 +36,7 @@ void bench(const char* type)
 
 int main()
 {
+    Logger::setLogLevel(Logger::DEBUG);// set log out put level
     getppid();
 
     ThreadPool pool("pool");

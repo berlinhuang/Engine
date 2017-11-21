@@ -64,7 +64,7 @@ void Poller::updateChannel(Channel *channel)
 {
     assertInLoopThread();
     LOG_TRACE<<"fd= "<<channel->fd()<<" events = "<<channel->events();
-    if(channel->index()<0)
+    if(channel->index()<0)// index()返回在poll的事件数组中的序号，index_在构造函数中的初始值为-1  index < 0说明是一个新的通道
     {
         assert(channels_.find(channel->fd())==channels_.end());
         struct pollfd pfd;
@@ -76,7 +76,7 @@ void Poller::updateChannel(Channel *channel)
         channel->set_index(idx);
         channels_[pfd.fd] = channel;
     }
-    else
+    else// 是已有的通道
     {
         assert(channels_.find(channel->fd()) != channels_.end());
         assert(channels_[channel->fd()]==channel);
@@ -86,7 +86,7 @@ void Poller::updateChannel(Channel *channel)
         assert(pfd.fd == channel->fd()||pfd.fd == -1);
         pfd.events = static_cast<short>(channel->events());
         pfd.revents = 0;
-        if(channel->isNoneEvent())
+        if(channel->isNoneEvent())//如果channel中已经没有想监听的事件，则将这个channel的fd从epoll中删除
         {
             pfd.fd = -1;
         }

@@ -6,8 +6,9 @@
 #include "./../EventLoop.h"
 #include "./../Channel.h"
 #include <sys/timerfd.h>
+#include <stdlib.h>
 //#include <stdio.h>
-
+#include "./../../base/Logging.h"
 EventLoop* g_loop;
 
 void timeout()
@@ -30,14 +31,14 @@ struct itimerspec {
  */
 int main()
 {
+    Logger::setLogLevel(Logger::TRACE);
     EventLoop loop;
     g_loop = &loop;
-
 
     int timerfd = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);//用于生成一个定时器对象，返回与之关联的文件描述符
     Channel channel(&loop,timerfd);
     channel.setReadCallback(timeout);
-    channel.enableReading();
+    channel.enableReading(); // update(); ->   loop_->updateChannel(Channel);  -> poller_->updateChannel(channel);
 
     struct itimerspec  howlong;
     bzero(&howlong, sizeof howlong);

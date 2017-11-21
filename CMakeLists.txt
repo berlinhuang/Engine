@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.8)
 project(Engine)
 
 set(CMAKE_CXX_STANDARD 11)
+
+#set(ENV{LOG_TRACE} 1)
 #
 #set(SOURCE_FILES base/Thread.cpp base/Thread.h)
 #add_library(Thread ${SOURCE_FILES})

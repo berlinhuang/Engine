@@ -28,7 +28,7 @@ public:
     void set_revents(int revt){ revents_ = revt;}
     bool isNoneEvent()const { return events_ == kNoneEvent;}
 
-    void enableReading(){ events_ |= kReadEvent; update();}
+    void enableReading(){ events_ |= kReadEvent; update();}// 将相应的Channel事件处理器加入到eventpool中
 
     int index(){ return index_;}
     void set_index(int idx){ index_ = idx;}
