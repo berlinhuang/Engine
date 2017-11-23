@@ -74,11 +74,11 @@ void EventLoop::abortNotInLoopThread()
 }
 
 
-
+//唤醒EventLoop
 void EventLoop::wakeup()
 {
     uint64_t one = 1;
-    ssize_t n = sockets::write(wakeupFd_, &one, sizeof one);
+    ssize_t n = sockets::write(wakeupFd_, &one, sizeof one);//随便写点数据进去就唤醒了
     if (n != sizeof one)
     {
         LOG_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 8";
@@ -97,11 +97,20 @@ void EventLoop::loop()
         activeChannels_.clear();// typedef std::vector<Channel*> ChannelList;
         // 1.监听并获取待处理的事件，把这些事件放在aciveChannels中
         pollReturnTime_ = poller_->poll(kPollTimeMs, &activeChannels_);
+
         // 2.循环处理所有activeChannels_中的事件
+        eventHandling_ = true;
         for(ChannelList::iterator it = activeChannels_.begin();it!=activeChannels_.end();++it)
         {
-            (*it)->handleEvent();
+//            (*it)->handleEvent();
+            currentActiveChannel_ = *it;
+            currentActiveChannel_->handleEvent();
         }
+        currentActiveChannel_ = NULL;
+        eventHandling_ = false;
+
+        // 3.处理完了IO事件之后，处理等待在队列中的任务
+        doPendingFunctors();
     }
 //    ::poll(NULL, 0, 5*1000);
     LOG_TRACE<<" EventLoop "<< this<< " stop looping";
@@ -111,6 +120,30 @@ void EventLoop::loop()
 void EventLoop::quit()
 {
     quit_ = true;
+}
+
+
+// 1. 不是简单的在临界区内依次调用functor，而是把回调列表swap到functors中，这一方面减小了
+//临界区的长度，意味着不会阻塞其他线程的queueInLoop()，另一方面也避免了死锁(因为Functor可能再次调用queueInLoop)
+
+// 2. 由于doPendingFunctors()调用的Functor可能再次调用queueInLoop(cb)，这是queueInLoop()就必须wakeup(),否则新增的cb可能就不能及时调用了
+
+// 3. muduo没有反复执行doPendingFunctors()直到pendingFunctors为空，这是有意的，否则I/O线程可能陷入死循环，无法处理I/O事件
+
+void EventLoop::doPendingFunctors()
+{
+    std::vector<Functor> functors;
+    callingPendingFunctors_ = true;
+    {
+        MutexLockGuard lock(mutex_);
+        functors.swap(pendingFunctors_);
+    }
+
+    for (size_t i = 0; i < functors.size(); ++i)
+    {
+        functors[i]();
+    }
+    callingPendingFunctors_ = false;
 }
 
 void EventLoop::updateChannel(Channel* channel)
@@ -149,13 +182,15 @@ void EventLoop::runInLoop(const Functor& cb)
 void EventLoop::queueInLoop(const Functor& cb)
 {
     {
-        MutexLockGuard lock(mutex_);
+        MutexLockGuard lock(mutex_);//其他线程调用必须获得锁
         pendingFunctors_.push_back(cb);
     }
-
+    //如果当前调用queueInLoop调用不是I/O线程，那么唤醒该I/O线程，以便I/O线程及时处理。
+    //或者调用的线程是当前I/O线程，并且此时调用pendingfunctor，需要唤醒
+    //只有当前I/O线程的事件回调中调用queueInLoop才不需要唤醒
     if (!isInLoopThread() || callingPendingFunctors_)
     {
-        wakeup();
+        wakeup();//加入要执行的事件到队列中后，我们当然希望I/O线程立刻执行该任务，所以立刻调用wakeup函数，唤醒I/O线程
     }
 }
 

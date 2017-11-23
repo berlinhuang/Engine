@@ -222,7 +222,10 @@ std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
 {
     assert(timers_.size()==activeTimers_.size());
     std::vector<Entry> expired;
-    Entry sentry(now, reinterpret_cast<Timer*>(UINTPTR_MAX));
+    // 1 2 2 3 4 4 4 4 5 6
+    //lower_bound(4) = 4
+    //upper_bound(4) = 5
+    Entry sentry(now, reinterpret_cast<Timer*>(UINTPTR_MAX));//  typedef std::pair<Timestamp, Timer*> Entry;
     //返回比参数小的下界，即返回第一个当前未超时的定时器(可能没有这样的定时器)
     TimerList::iterator end = timers_.lower_bound(sentry);
     assert(end == timers_.end()|| now < end->first);
@@ -233,7 +236,7 @@ std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
     for(std::vector<Entry>::iterator it = expired.begin();
             it!=expired.end(); ++it)
     {
-        ActiveTimer timer(it->second, it->second->sequence());
+        ActiveTimer timer(it->second, it->second->sequence());//typedef std::pair<Timer*, int64_t> ActiveTimer;
         size_t n = activeTimers_.erase(timer);
         assert(n == 1);
         (void)n;
