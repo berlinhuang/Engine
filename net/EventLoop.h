@@ -27,7 +27,7 @@ public:
     EventLoop();
     ~EventLoop();
 
-
+    void wakeup();
     void loop();
     void quit();
     void updateChannel(Channel* channel);
@@ -67,6 +67,7 @@ private:
     bool looping_;
     const pid_t threadId_;// current object's thread
 
+    int wakeupFd_;
 
     bool quit_;
     boost::scoped_ptr<Poller> poller_;

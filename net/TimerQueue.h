@@ -26,10 +26,10 @@ public:
 
 
     TimerId addTimer(const TimerCallback& cb, Timestamp when, double interval);
-
+    void cancel(TimerId timerId);
 private:
-    typedef std::pair<Timestamp, Timer*>Entry;
-    typedef std::set<Entry> TimerList;
+    typedef std::pair<Timestamp, Timer*> Entry;
+    typedef std::set<Entry> TimerList;// multiset(平衡二叉树)  它里面的元素按大小顺序存放
     TimerList  timers_;
 
 

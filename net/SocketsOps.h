@@ -25,6 +25,9 @@ namespace sockets
     const struct sockaddr_in6* sockaddr_in6_cast( const struct sockaddr* addr);
 
 
+
+    ssize_t write(int sockfd, const void *buf, size_t count);
+
 }
 
 

@@ -90,4 +90,14 @@ namespace sockets
     {
         return static_cast<const struct sockaddr_in6*>(implicit_cast<const void*>(addr));
     }
+
+
+    ssize_t write(int sockfd, const void *buf, size_t count)
+    {
+        return ::write(sockfd, buf, count);
+    }
+
+
+
+
 }

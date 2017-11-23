@@ -49,7 +49,7 @@ TimerQueue::~TimerQueue()
     }
 }
 
-bool TimerQueue::insert(Timer* timer)
+bool TimerQueue::insert(Timer* timer) //若当前插入的定时器比队列中的定时器都早则返回真
 {
     loop_->assertInLoopThread();
     assert(timers_.size() == activeTimers_.size());
@@ -90,7 +90,7 @@ struct timespec howMuchTimeFromNow(Timestamp when)//现在距离超时时间when
     return ts;
 }
 
-
+// 设置新的超时时间为newValue
 void resetTimerfd(int timerfd, Timestamp expiration)
 {
     struct itimerspec newValue;
@@ -109,19 +109,47 @@ void resetTimerfd(int timerfd, Timestamp expiration)
 void TimerQueue::addTimerInLoop(Timer *timer)
 {
     loop_->assertInLoopThread();
-    bool earliestChanged = insert(timer);
+    bool earliestChanged = insert(timer);//将timer 插入TimerQueue的timers_ 和activeTimers_ 中
     if(earliestChanged)
     {
-        resetTimerfd(timerfd_, timer->expiration());
+        resetTimerfd(timerfd_, timer->expiration()); //更新timefd_
     }
 }
 
+void TimerQueue::cancelInLoop(TimerId timerId)
+{
+    loop_->assertInLoopThread();
+    assert(timers_.size() == activeTimers_.size());
+    ActiveTimer timer(timerId.timer_, timerId.sequence_);
+    ActiveTimerSet::iterator it = activeTimers_.find(timer);
+    if (it != activeTimers_.end())
+    {
+        size_t n = timers_.erase(Entry(it->first->expiration(), it->first));
+        assert(n == 1); (void)n;
+        delete it->first; // FIXME: no delete please
+        activeTimers_.erase(it);
+    }
+    else if (callingExpiredTimers_)
+    {
+        cancelingTimers_.insert(timer);
+    }
+    assert(timers_.size() == activeTimers_.size());
+}
 
+
+// 将timer 插入TimerQueue的timers_ 和activeTimers_ 中
+// 该函数可以跨线程调用
 TimerId TimerQueue::addTimer(const TimerCallback& cb, Timestamp when, double interval)
 {
     Timer* timer = new Timer(cb, when, interval);
     loop_ ->runInLoop(boost::bind(&TimerQueue::addTimerInLoop,this,timer));
     return TimerId(timer, timer->sequence());
+}
+
+
+void TimerQueue::cancel(TimerId timerId)
+{
+    loop_->runInLoop(boost::bind(&TimerQueue::cancelInLoop, this, timerId));
 }
 
 void readTimerfd(int timerfd, Timestamp now)
@@ -157,7 +185,7 @@ void TimerQueue::handleRead()
     reset(expired, now);
 }
 
-
+//已经执行完超时回调的定时器是否需要重置定时
 void TimerQueue::reset(const std::vector<Entry>& expired, Timestamp now)
 {
     Timestamp nextExpire;
@@ -192,6 +220,24 @@ void TimerQueue::reset(const std::vector<Entry>& expired, Timestamp now)
 
 std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
 {
+    assert(timers_.size()==activeTimers_.size());
+    std::vector<Entry> expired;
+    Entry sentry(now, reinterpret_cast<Timer*>(UINTPTR_MAX));
+    //返回比参数小的下界，即返回第一个当前未超时的定时器(可能没有这样的定时器)
+    TimerList::iterator end = timers_.lower_bound(sentry);
+    assert(end == timers_.end()|| now < end->first);
 
+    std::copy(timers_.begin(), end, back_inserter(expired));
+    timers_.erase(timers_.begin(),end);
 
+    for(std::vector<Entry>::iterator it = expired.begin();
+            it!=expired.end(); ++it)
+    {
+        ActiveTimer timer(it->second, it->second->sequence());
+        size_t n = activeTimers_.erase(timer);
+        assert(n == 1);
+        (void)n;
+    }
+    assert(timers_.size()==activeTimers_.size());
+    return expired;//返回已经超时的那部分定时器
 }

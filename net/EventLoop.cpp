@@ -4,10 +4,14 @@
 
 #include <poll.h>
 #include <assert.h>
+#include <sys/eventfd.h>
+
+
 #include "./EventLoop.h"
 #include "./Poller.h"
 #include "./Channel.h"
 #include "./TimerQueue.h"
+#include "./SocketsOps.h"
 #include "./../base/Logging.h"
 #include "./../base/Mutex.h"
 
@@ -16,7 +20,16 @@ __thread EventLoop* t_loopInThisThread = 0;// rec eventloop
 const int kPollTimeMs = 10000;
 
 
-
+int createEventfd()
+{
+    int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
+    if (evtfd < 0)
+    {
+        LOG_SYSERR << "Failed in eventfd";
+        abort();
+    }
+    return evtfd;
+}
 
 
 EventLoop::EventLoop()
@@ -27,8 +40,8 @@ EventLoop::EventLoop()
  threadId_(CurrentThread::tid()),
  poller_(new Poller(this)),
  timerQueue_(new TimerQueue(this)),
- currentActiveChannel_(NULL)
-
+ currentActiveChannel_(NULL),
+ wakeupFd_(createEventfd())
 {
 
     if(t_loopInThisThread)// make sure that one loop per thread
@@ -59,6 +72,19 @@ void EventLoop::abortNotInLoopThread()
               << " was created in threadId_ = " << threadId_
               << ", current thread id = " <<  CurrentThread::tid();
 }
+
+
+
+void EventLoop::wakeup()
+{
+    uint64_t one = 1;
+    ssize_t n = sockets::write(wakeupFd_, &one, sizeof one);
+    if (n != sizeof one)
+    {
+        LOG_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 8";
+    }
+}
+
 
 void EventLoop::loop()
 {
@@ -114,24 +140,24 @@ void EventLoop::runInLoop(const Functor& cb)
     {
         cb();
     }
-//    else
-//    {
-//        queueInLoop(cb);
-//    }
+    else
+    {
+        queueInLoop(cb);
+    }
 }
 
-//void EventLoop::queueInLoop(const Functor& cb)
-//{
-//    {
-//        MutexLockGuard lock(mutex_);
-//        pendingFunctors_.push_back(cb);
-//    }
-//
-//    if (!isInLoopThread() || callingPendingFunctors_)
-//    {
-//        wakeup();
-//    }
-//}
+void EventLoop::queueInLoop(const Functor& cb)
+{
+    {
+        MutexLockGuard lock(mutex_);
+        pendingFunctors_.push_back(cb);
+    }
+
+    if (!isInLoopThread() || callingPendingFunctors_)
+    {
+        wakeup();
+    }
+}
 
 
 TimerId EventLoop::runAt(const Timestamp& time, const TimerCallback& cb)
@@ -151,6 +177,11 @@ TimerId EventLoop::runEvery(double interval, const TimerCallback& cb)
     return timerQueue_->addTimer(cb,time,interval);
 }
 
+
+void EventLoop::cancel(TimerId timerId)
+{
+    return timerQueue_->cancel(timerId);
+}
 
 
 
