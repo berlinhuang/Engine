@@ -36,7 +36,7 @@ namespace sockets
 
     int createNonblockingOrDie(sa_family_t family);
 
-
+    struct sockaddr_in6 getLocalAddr(int sockfd);
 
 }
 

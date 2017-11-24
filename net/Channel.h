@@ -6,6 +6,7 @@
 #define ENGINE_CHANNEL_H
 
 #include <boost/function.hpp>
+#include <boost/weak_ptr.hpp>
 
 class EventLoop;
 
@@ -18,12 +19,15 @@ public:
     typedef boost::function<void()> EventCallback;
 
     Channel( EventLoop* loop, int fd);
-
+    ~Channel();
     void handleEvent();
 
     void setReadCallback(const EventCallback& cb){ readCallback_ = cb;}
     void setWriteCallback(const EventCallback& cb){ writeCallback_ = cb;}
     void setErrorCallback(const EventCallback& cb){ errorCallback_ = cb;}
+
+    void tie(const boost::shared_ptr<void>&);
+
 
     int fd() const { return  fd_;}
     int events() const {return events_;}
@@ -48,6 +52,10 @@ private:
 
     EventLoop* loop_;
     const int fd_;
+
+
+    boost::weak_ptr<void> tie_;
+    bool tied_;
 
     int events_;
     int revents_;

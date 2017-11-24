@@ -24,9 +24,9 @@ int main()
     InetAddress listenAddr(9981);
     EventLoop loop;
 
-    Acceptor acceptor(&loop, listenAddr);
+    Acceptor acceptor(&loop, listenAddr);// socket bind
     acceptor.setNewConnectionCallback(newConnection);
-    acceptor.listen();
+    acceptor.listen();//listen
 
-    loop.loop();
+    loop.loop();//Channel::handleRead  =>     Acceptor::handleRead  =>     accept   =>   newConnection()
 }

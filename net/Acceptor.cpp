@@ -10,13 +10,13 @@
 
 Acceptor::Acceptor(EventLoop *loop, const InetAddress &listenAddr)
 :loop_(loop),
- acceptSocket_(sockets::createNonblockingOrDie(listenAddr.family())),
+ acceptSocket_(sockets::createNonblockingOrDie(listenAddr.family())),                         //       socket
  acceptChannel_(loop,acceptSocket_.fd()),
  listenning_(false)
 {
     acceptSocket_.setReuseAddr(true);
-    acceptSocket_.bindAddress(listenAddr);
-    acceptChannel_.setReadCallback(boost::bind(&Acceptor::handleRead,this));
+    acceptSocket_.bindAddress(listenAddr);                                                    //        bind
+    acceptChannel_.setReadCallback(boost::bind(&Acceptor::handleRead,this));// bind
 }
 
 Acceptor::~Acceptor()
@@ -30,7 +30,7 @@ void Acceptor::listen()
 {
     loop_->assertInLoopThread();
     listenning_ = true;
-    acceptSocket_.listen();
+    acceptSocket_.listen();                                                                   //        listen
     acceptChannel_.enableReading();
 }
 
@@ -38,7 +38,7 @@ void Acceptor::handleRead()
 {
     loop_->assertInLoopThread();
     InetAddress peerAddr(0);
-    int connfd = acceptSocket_.accept(&peerAddr);
+    int connfd = acceptSocket_.accept(&peerAddr);                                             //        accept
     if(connfd>0)
     {
         if(newConnectionCallback_)

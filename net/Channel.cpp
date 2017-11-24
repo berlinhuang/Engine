@@ -18,8 +18,25 @@ Channel::Channel(EventLoop *loop, int fd)
      events_(0),
      revents_(0),
      index_(-1),
+     tied_(false),
      addedToLoop_(false)
 {}
+
+Channel::~Channel()
+{
+    assert(!addedToLoop_);
+    if(loop_->isInLoopThread())
+    {
+//        assert(!loop_->hasChannel(this));
+    }
+}
+
+
+void Channel::tie(const boost::shared_ptr<void> & obj) {
+    tie_ = obj;
+    tied_ = true;
+}
+
 
 
 //Channel::update
@@ -28,6 +45,7 @@ Channel::Channel(EventLoop *loop, int fd)
 
 void Channel::update()
 {
+    addedToLoop_ = true;
     loop_->updateChannel(this);
 }
 

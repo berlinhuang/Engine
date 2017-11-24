@@ -125,7 +125,19 @@ const char* strerror_tl(int savedErrno);
 #define LOG_SYSFATAL Logger(__FILE__,__LINE__, true).stream()
 
 
+#define CHECK_NOTNULL(val) \
+  ::CheckNotNull(__FILE__, __LINE__, "'" #val "' Must be non NULL", (val))
 
+// A small helper for CHECK_NOTNULL().
+template <typename T>
+T* CheckNotNull(Logger::SourceFile file, int line, const char *names, T* ptr)
+{
+    if (ptr == NULL)
+    {
+        Logger(file, line, Logger::FATAL).stream() << names;
+    }
+    return ptr;
+}
 
 
 #endif //ENGINE_LOGGING_H

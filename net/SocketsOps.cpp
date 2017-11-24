@@ -187,4 +187,18 @@ namespace sockets
         return sockfd;
     }
 
+
+
+    struct sockaddr_in6 getLocalAddr(int sockfd)
+    {
+        struct sockaddr_in6 localaddr;
+        bzero(&localaddr, sizeof localaddr);
+        socklen_t addrlen = static_cast<socklen_t>(sizeof localaddr);
+        if (::getsockname(sockfd, sockaddr_cast(&localaddr), &addrlen) < 0)
+        {
+            LOG_SYSERR << "sockets::getLocalAddr";
+        }
+        return localaddr;
+    }
+
 }

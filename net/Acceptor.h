@@ -32,8 +32,8 @@ private:
 
     EventLoop* loop_;
 
-    Socket acceptSocket_;
-    Channel acceptChannel_;
+    Socket acceptSocket_;// listening socket
+    Channel acceptChannel_;// 观察acceptSocket_ readable event
 
     NewConnectionCallback newConnectionCallback_;
     bool listenning_;
