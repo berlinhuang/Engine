@@ -39,9 +39,7 @@ namespace CurrentThread
         return t_tidStringLength;
     }
 
-
-
-
+    void sleepUsec(int64_t usec);
 }
 
 

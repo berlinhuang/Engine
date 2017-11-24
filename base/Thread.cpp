@@ -1,11 +1,13 @@
 #include "Thread.h"
+#include "Logging.h"
+#include "CurrentThread.h"
+#include "Exception.h"
+
 
 #include <iostream>
 #include <pthread.h>
 #include <unistd.h>
 #include <syscall.h>
-#include "CurrentThread.h"
-#include "Exception.h"
 #include <stdlib.h>
 /*
  * process pid_t        diff
@@ -105,6 +107,17 @@ void Thread::setDefaultName()
         name_ = buf;
     }
 }
+
+
+
+void CurrentThread::sleepUsec(int64_t usec)
+{
+    struct timespec ts = { 0, 0 };
+    ts.tv_sec = static_cast<time_t>(usec / Timestamp::kMicroSecondsPersecond);
+    ts.tv_nsec = static_cast<long>(usec % Timestamp::kMicroSecondsPersecond * 1000);
+    ::nanosleep(&ts, NULL);
+}
+
 
 
 AtomicInt32 Thread::numCreated_;

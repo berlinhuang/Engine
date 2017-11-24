@@ -6,6 +6,7 @@ set(net_SRCS
         Poller.cpp
         Timer.cpp
         TimerQueue.cpp
+        EventLoopThread.cpp
         )
 add_library(engine_net ${net_SRCS})
 target_link_libraries(engine_net pthread)
