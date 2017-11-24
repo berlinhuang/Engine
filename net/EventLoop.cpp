@@ -17,7 +17,7 @@
 
 __thread EventLoop* t_loopInThisThread = 0;// rec eventloop
 
-const int kPollTimeMs = 10000;
+const int kPollTimeMs = 10000; // ns=>ns return  -1=>block  0=>nonblock
 
 
 int createEventfd()

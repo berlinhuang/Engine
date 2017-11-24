@@ -10,3 +10,6 @@ target_link_libraries(TestEventLoop3 engine_net engine_base )
 
 add_executable(MyTimeQueue MyTimeQueue.cpp)
 target_link_libraries(MyTimeQueue engine_net engine_base )
+
+add_executable(crashLoopTest crashLoopTest.cpp)
+target_link_libraries(crashLoopTest engine_net engine_base )
