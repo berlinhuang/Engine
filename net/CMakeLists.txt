@@ -7,6 +7,10 @@ set(net_SRCS
         Timer.cpp
         TimerQueue.cpp
         EventLoopThread.cpp
+        Socket.cpp
+        Acceptor.cpp
+        TcpServer.cpp
+        TcpConnection.cpp
         )
 add_library(engine_net ${net_SRCS})
 target_link_libraries(engine_net pthread)

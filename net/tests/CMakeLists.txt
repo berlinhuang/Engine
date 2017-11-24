@@ -17,3 +17,7 @@ target_link_libraries(crashLoopTest engine_net engine_base )
 
 add_executable(MyEventLoopThread MyEventLoopThread.cpp)
 target_link_libraries(MyEventLoopThread engine_net engine_base)
+
+
+add_executable(MyAcceptor MyAcceptor.cpp)
+target_link_libraries(MyAcceptor engine_net engine_base)

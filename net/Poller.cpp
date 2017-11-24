@@ -106,8 +106,6 @@ void Poller::removeChannel(Channel *channel)
     int idx = channel->index();
     assert(0 <= idx && idx < static_cast<int>(pollfds_.size()));
     const struct pollfd& pfd = pollfds_[idx]; (void)pfd;
-    LOG_TRACE<<pfd.fd;
-    LOG_TRACE<<-channel->fd()-1;
     assert(pfd.fd == -1 && pfd.events == channel->events());
     size_t n = channels_.erase(channel->fd());
     assert(n == 1);

@@ -8,7 +8,7 @@
 
 void print(EventLoop* p = NULL)
 {
-    printf("print: pid = %d, tid = %d, loop = %p\n", getpid(), CurrentThread::tid(), p);
+    printf("print: pid = %d, tid = %d, loop = %p, time=%s\n", getpid(), CurrentThread::tid(), p, Timestamp::now().toString().c_str());
 }
 
 void quit(EventLoop* p)
@@ -20,23 +20,26 @@ void quit(EventLoop* p)
 
 int main()
 {
-    Logger::setLogLevel(Logger::TRACE);
+//    Logger::setLogLevel(Logger::TRACE);
     print();
     {
         EventLoopThread thr1; //never start
     }
 
+    printf("time = %s\n",Timestamp::now().toString().c_str());
+
+    //dtor calls quit
     {
-        EventLoopThread thr2;
-        EventLoop* loop = thr2.startLoop();
-        loop->runInLoop(boost::bind(print, loop));
+        EventLoopThread thr2;// thread_(boost::bind(&EventLoopThread::threadFunc,this),name)
+        EventLoop* loop = thr2.startLoop(); //return loop
+        loop->runInLoop(boost::bind(print, loop)); // main thread call loop->runInLoop()
         CurrentThread::sleepUsec(500 * 1000);
     }
 
     {
         EventLoopThread thr3;
         EventLoop* loop = thr3.startLoop();
-        loop->runInLoop(boost::bind(quit, loop));
+        loop->runInLoop(boost::bind(quit, loop)); //
         CurrentThread::sleepUsec(500 * 1000);
     }
 

@@ -14,6 +14,77 @@
 
 namespace sockets
 {
+
+    void listenOrDie(int sockfd)
+    {
+        int ret = ::listen(sockfd, SOMAXCONN);
+        if (ret < 0)
+        {
+            LOG_SYSFATAL << "sockets::listenOrDie";
+        }
+    }
+
+    void bindOrDie(int sockfd, const struct sockaddr* addr)
+    {
+        int ret = ::bind(sockfd, addr, static_cast<socklen_t>(sizeof(struct sockaddr_in6)));
+        if (ret < 0)
+        {
+            LOG_SYSFATAL << "sockets::bindOrDie";
+        }
+    }
+
+    int accept(int sockfd, struct sockaddr_in6* addr)
+    {
+        socklen_t addrlen = static_cast<socklen_t>(sizeof *addr);
+#if VALGRIND || defined (NO_ACCEPT4)
+        int connfd = ::accept(sockfd, sockaddr_cast(addr), &addrlen);
+  setNonBlockAndCloseOnExec(connfd);
+#else
+        int connfd = ::accept4(sockfd, sockaddr_cast(addr), &addrlen, SOCK_NONBLOCK | SOCK_CLOEXEC);
+#endif
+        if (connfd < 0)
+        {
+            int savedErrno = errno;
+            LOG_SYSERR << "Socket::accept";
+            switch (savedErrno)
+            {
+                case EAGAIN:
+                case ECONNABORTED:
+                case EINTR:
+                case EPROTO: // ???
+                case EPERM:
+                case EMFILE: // per-process lmit of open file desctiptor ???
+                    // expected errors
+                    errno = savedErrno;
+                    break;
+                case EBADF:
+                case EFAULT:
+                case EINVAL:
+                case ENFILE:
+                case ENOBUFS:
+                case ENOMEM:
+                case ENOTSOCK:
+                case EOPNOTSUPP:
+                    // unexpected errors
+                    LOG_FATAL << "unexpected error of ::accept " << savedErrno;
+                    break;
+                default:
+                    LOG_FATAL << "unknown error of ::accept " << savedErrno;
+                    break;
+            }
+        }
+        return connfd;
+    }
+
+    void close(int sockfd)
+    {
+        if (::close(sockfd) < 0)
+        {
+            LOG_SYSERR << "sockets::close";
+        }
+    }
+
+
     void toIp(char* buf, size_t size, const struct sockaddr* addr)
     {
         if (addr->sa_family == AF_INET)
@@ -65,8 +136,6 @@ namespace sockets
 
 
 
-
-
     const struct sockaddr* sockaddr_cast(const struct sockaddr_in* addr)
     {
         return static_cast<const struct sockaddr*>(implicit_cast<const void*>(addr));
@@ -98,6 +167,24 @@ namespace sockets
     }
 
 
+    int createNonblockingOrDie(sa_family_t family)
+    {
+#if VALGRIND
+        int sockfd = ::socket(family, SOCK_STREAM, IPPROTO_TCP);
+  if (sockfd < 0)
+  {
+    LOG_SYSFATAL << "sockets::createNonblockingOrDie";
+  }
 
+  setNonBlockAndCloseOnExec(sockfd);
+#else
+        int sockfd = ::socket(family, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
+        if (sockfd < 0)
+        {
+            LOG_SYSFATAL << "sockets::createNonblockingOrDie";
+        }
+#endif
+        return sockfd;
+    }
 
 }

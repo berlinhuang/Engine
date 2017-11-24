@@ -36,7 +36,7 @@ EventLoop* EventLoopThread::startLoop()
         MutexLockGuard lock(mutex_);
         while (loop_ == NULL)
         {
-            cond_.wait();
+            cond_.wait();//等待创建好当前IO线程
         }
     }
 
@@ -47,7 +47,7 @@ EventLoop* EventLoopThread::startLoop()
 
 void EventLoopThread::threadFunc()
 {
-    EventLoop loop;
+    EventLoop loop;//创建EventLoop对象。注意，在栈上
     if(callback_)
     {
         callback_(&loop);
@@ -56,9 +56,9 @@ void EventLoopThread::threadFunc()
     {
         MutexLockGuard lock(mutex_);
         loop_ = &loop; //
-        cond_.notify();
+        cond_.notify();//通知startLoop
     }
 
-    loop.loop();
+    loop.loop();//会在这里循环，直到EventLoopThread析构。此后不再使用loop_访问EventLoop了
     loop_ = NULL;
 }
