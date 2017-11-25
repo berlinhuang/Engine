@@ -19,15 +19,17 @@ Channel::Channel(EventLoop *loop, int fd)
      revents_(0),
      index_(-1),
      tied_(false),
-     addedToLoop_(false)
+     addedToLoop_(false),
+     eventHandling_(false)
 {}
 
 Channel::~Channel()
 {
+    assert(!eventHandling_);
     assert(!addedToLoop_);
     if(loop_->isInLoopThread())
     {
-//        assert(!loop_->hasChannel(this));
+        assert(!loop_->hasChannel(this));
     }
 }
 
@@ -58,10 +60,19 @@ void Channel::remove()
 
 void Channel::handleEvent()
 {
+    eventHandling_ = true;
     if(revents_&POLLNVAL)
     {
         LOG_WARN<<"Channel::handle_event() POLLNYAL";
     }
+
+
+    if((revents_ & POLLHUP)&&!revents_&POLLIN)
+    {
+        LOG_WARN<<"Channel::handle_event() POLLHUP";
+        if (closeCallback_) closeCallback_();
+    }
+
 
     if(revents_&(POLLERR|POLLNVAL))
     {
@@ -76,4 +87,5 @@ void Channel::handleEvent()
     {
         if(writeCallback_) writeCallback_();
     }
+    eventHandling_ = false;
 }

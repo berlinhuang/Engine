@@ -63,7 +63,7 @@ private:
     int index_;
 
     bool addedToLoop_;
-
+    bool eventHandling_;
     // typedef boost::function<void()> EventCallback;
     EventCallback readCallback_;
     EventCallback writeCallback_;

@@ -166,6 +166,13 @@ void EventLoop::removeChannel(Channel* channel)
     poller_->removeChannel(channel);
 }
 
+bool EventLoop::hasChannel(Channel* channel)
+{
+    assert(channel->ownerLoop()==this);
+    assertInLoopThread();
+    return poller_->hasChannel(channel);
+}
+
 
 void EventLoop::runInLoop(const Functor& cb)
 {

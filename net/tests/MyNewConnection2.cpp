@@ -47,7 +47,7 @@ int main()
     TcpServer server(&loop,listenAddr,"myServer");
     server.setConnectionCallback(onConnection);
     server.setMessageCallback(onMessage);
-    server.start();
+    server.start();//listen
     loop.loop();
 
 

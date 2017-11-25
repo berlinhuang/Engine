@@ -20,9 +20,9 @@ TcpConnection::TcpConnection(EventLoop* loop, const string& nameArg, int sockfd,
  localAddr_(localAddr),
  peerAddr_(peerAddr)
 {
-    channel_->setReadCallback(boost::bind(&TcpConnection::handleRead,this));
-    channel_->setWriteCallback(boost::bind(&TcpConnection::handleWrite,this));
-    channel_->setCloseCallback(boost::bind(&TcpConnection::handleClose,this));
+    channel_->setReadCallback(boost::bind(&TcpConnection::handleRead,this));//messageCallback_
+    channel_->setWriteCallback(boost::bind(&TcpConnection::handleWrite,this));//writeCompleteCallback_
+    channel_->setCloseCallback(boost::bind(&TcpConnection::handleClose,this));//closeCallback_
     channel_->setErrorCallback(boost::bind(&TcpConnection::handleError,this));
 }
 
@@ -116,5 +116,13 @@ void TcpConnection::handleError()
 
 void TcpConnection::handleWrite()
 {
-
+    loop_->assertInLoopThread();
+//    if(channel_->isWriting())
+//    {
+//
+//
+//    }
 }
+
+
+

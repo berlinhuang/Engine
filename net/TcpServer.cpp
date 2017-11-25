@@ -15,12 +15,10 @@ TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr, const strin
 :loop_(CHECK_NOTNULL(loop)),
  ipPort_(listenAddr.toIpPort()),
  name_(nameArg),
- acceptor_(new Acceptor(loop, listenAddr)),
+ acceptor_(new Acceptor(loop, listenAddr)),// socket bind
  nextConnId_(1)
 {
-    acceptor_->setNewConnectionCallback(
-            boost::bind(&TcpServer::newConnection,this,_1,_2)
-    );
+    acceptor_->setNewConnectionCallback( boost::bind(&TcpServer::newConnection,this,_1,_2));  // listen socket  NewConnection
 }
 
 TcpServer::~TcpServer()
@@ -45,6 +43,8 @@ void TcpServer::start()
     if(started_.getAndSet(1) == 0)
     {
         assert(!acceptor_->listenning());
+        //自由方法来说，直接boost::bind(函数名, 参数1，参数2，...)
+        //类方法来说，直接boost::bind(&类名::方法名，类实例指针，参数1，参数2）
         loop_->runInLoop(
                 boost::bind(&Acceptor::listen,get_pointer(acceptor_)));//scoped_ptr
     }
@@ -66,8 +66,8 @@ void TcpServer::newConnection(int sockfd, const InetAddress &peerAddr) {
     TcpConnectionPtr conn(
             new TcpConnection(loop_,connName, sockfd, localAddr, peerAddr));
     connections_[connName]=conn;
-    conn->setConnectionCallback(connectionCallback_);
-    conn->setMessageCallback(messageCallback_);
+    conn->setConnectionCallback(connectionCallback_);// TcpServer::setConnectionCallback
+    conn->setMessageCallback(messageCallback_);//TcpServer::setMessageCallback
     conn->setCloseCallback(boost::bind(&TcpServer::removeConnection,this,_1));
     conn->connectEstablished();
 }

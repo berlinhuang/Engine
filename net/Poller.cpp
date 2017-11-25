@@ -96,6 +96,7 @@ void Poller::updateChannel(Channel *channel)
 }
 
 
+//O(logN)
 void Poller::removeChannel(Channel *channel)
 {
     Poller::assertInLoopThread();
@@ -125,4 +126,11 @@ void Poller::removeChannel(Channel *channel)
         channels_[channelAtEnd]->set_index(idx);
         pollfds_.pop_back();
     }
+}
+
+bool Poller::hasChannel(Channel* channel)
+{
+    assertInLoopThread();
+    ChannelMap::const_iterator it = channels_.find(channel->fd());
+    return it != channels_.end() && it->second == channel;
 }

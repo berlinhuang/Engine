@@ -23,6 +23,7 @@ public:
 
     void updateChannel(Channel* channel);
     void removeChannel(Channel* channel);
+    bool hasChannel(Channel* channel);
 
     void assertInLoopThread(){ ownerLoop_->assertInLoopThread();}
 private:

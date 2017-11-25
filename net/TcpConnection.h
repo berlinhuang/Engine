@@ -42,7 +42,7 @@ public:
     const InetAddress& localAddress() const { return localAddr_; }
     const InetAddress& peerAddress() const { return peerAddr_; }
 
-
+    // when accept a new connection on TcpServer::newConnection
     void setConnectionCallback(const ConnectionCallback& cb)
     { connectionCallback_ = cb; }
     void setMessageCallback(const MessageCallback& cb)

@@ -32,6 +32,8 @@ public:
     void quit();
     void updateChannel(Channel* channel);
     void removeChannel(Channel* channel);
+    bool hasChannel(Channel* channel);
+
     void doPendingFunctors();
     void assertInLoopThread()
     {
