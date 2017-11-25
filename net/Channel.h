@@ -25,6 +25,7 @@ public:
     void setReadCallback(const EventCallback& cb){ readCallback_ = cb;}
     void setWriteCallback(const EventCallback& cb){ writeCallback_ = cb;}
     void setErrorCallback(const EventCallback& cb){ errorCallback_ = cb;}
+    void setCloseCallback(const EventCallback& cb){ closeCallback_ = cb;}
 
     void tie(const boost::shared_ptr<void>&);
 
@@ -63,10 +64,11 @@ private:
 
     bool addedToLoop_;
 
+    // typedef boost::function<void()> EventCallback;
     EventCallback readCallback_;
     EventCallback writeCallback_;
     EventCallback errorCallback_;
-
+    EventCallback closeCallback_;
 };
 
 

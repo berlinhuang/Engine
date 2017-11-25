@@ -21,6 +21,7 @@ namespace sockets
     void fromIpPort( const char* ip, uint16_t port, struct sockaddr_in* addr);
     void fromIpPort( const char* ip, uint16_t port, struct sockaddr_in6* addr);
 
+    int getSocketError(int sockfd);
 
     const struct sockaddr* sockaddr_cast(const struct sockaddr_in* addr);
     const struct sockaddr* sockaddr_cast(const struct sockaddr_in6* addr);

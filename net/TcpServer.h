@@ -6,7 +6,7 @@
 #define ENGINE_TCPSERVER_H
 
 #include "Callbacks.h"
-
+#include "./../base/Atomic.h"
 #include <map>
 #include <boost/scoped_ptr.hpp>
 
@@ -16,32 +16,28 @@ class Acceptor;
 
 class TcpServer {
 public:
-    TcpServer(EventLoop* loop, const InetAddress& ListenAddr);
+    TcpServer(EventLoop* loop, const InetAddress& listenAddr, const string& nameArg);
     ~TcpServer();
 
     void start();
 
     void setConnectionCallback(const ConnectionCallback& cb)
-    {
-        connectionCallback_= cb;
-    }
+    { connectionCallback_= cb; }
 
     void setMessageCallback(const MessageCallback& cb)
-    {
-        messageCallback_  = cb;
-    }
+    { messageCallback_  = cb; }
 
 private:
 
     void newConnection(int sockfd, const InetAddress& peerAddr);
-
-
+    void removeConnection(const TcpConnectionPtr& conn);
+    void removeConnectionInLoop(const TcpConnectionPtr& conn);
     EventLoop* loop_;
     const std::string name_;
-
+    const string ipPort_;
     boost::scoped_ptr<Acceptor> acceptor_;
 
-    bool started_;
+    AtomicInt32 started_;
 
     int nextConnId_;
 

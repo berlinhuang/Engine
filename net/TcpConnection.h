@@ -33,19 +33,38 @@ public:
     ~TcpConnection();
 
 
+    EventLoop* getLoop() const { return loop_; }
+    const string& name() const { return name_; }
+
+
+    bool connected() const { return state_ == kConnected; }
+    bool disconnected() const { return state_ == kDisconnected; }
+    const InetAddress& localAddress() const { return localAddr_; }
+    const InetAddress& peerAddress() const { return peerAddr_; }
+
+
     void setConnectionCallback(const ConnectionCallback& cb)
     { connectionCallback_ = cb; }
     void setMessageCallback(const MessageCallback& cb)
     { messageCallback_ = cb; }
-
+    void setCloseCallback(const CloseCallback& cb)
+    { closeCallback_ = cb; }
 
     void connectEstablished();
     void connectDestroyed();
 
+    void handleRead();
+    void handleWrite();
+    void handleClose();
+    void handleError();
+
+
+    const char* stateToString() const;
+
 private:
 
 
-    enum StateE { kDisconnected, kConnecting, kConnected, kDisconnecing };
+    enum StateE { kDisconnected, kConnecting, kConnected, kDisconnecting };
     StateE state_;  // FIXME: use atomic variable
     void setState(StateE s) { state_ = s; }
 
@@ -63,6 +82,7 @@ private:
 
     ConnectionCallback connectionCallback_;
     MessageCallback messageCallback_;
+    CloseCallback closeCallback_;
 };
 
 

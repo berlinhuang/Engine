@@ -21,3 +21,9 @@ target_link_libraries(MyEventLoopThread engine_net engine_base)
 
 add_executable(MyAcceptor MyAcceptor.cpp)
 target_link_libraries(MyAcceptor engine_net engine_base)
+
+add_executable(MyNewConnection MyNewConnection.cpp)
+target_link_libraries(MyNewConnection engine_net engine_base)
+
+add_executable(MyNewConnection2 MyNewConnection2.cpp)
+target_link_libraries(MyNewConnection2 engine_net engine_base)

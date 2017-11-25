@@ -12,10 +12,12 @@ class TcpConnection;
 typedef boost::function<void()> TimerCallback;
 typedef boost::shared_ptr<TcpConnection> TcpConnectionPtr;
 typedef boost::function<void (const TcpConnectionPtr&)> ConnectionCallback;
+typedef boost::function<void (const TcpConnectionPtr&)> CloseCallback;
+typedef boost::function<void (const TcpConnectionPtr&,
+                              char*,
+                              int)> MessageCallback;
 
-
-typedef boost::function<void (const TcpConnectionPtr&, Buffer*, Timestamp)> MessageCallback;
-
+//typedef boost::function<void (const TcpConnectionPtr&)>
 
 
 
