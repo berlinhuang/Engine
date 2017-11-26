@@ -9,6 +9,10 @@
 #include <unistd.h>
 #include <syscall.h>
 #include <stdlib.h>
+
+//#include <boost/type_traits/is_same.hpp>
+#include <boost/type_traits.hpp>
+
 /*
  * process pid_t        diff
  * thread  pthread_t    may be same
