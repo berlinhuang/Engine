@@ -7,6 +7,10 @@
 #include "../base/Logging.h"
 #include <poll.h>
 
+#include <sstream>
+
+
+#include <boost/shared_ptr.hpp>
 
 const int Channel::kNoneEvent = 0;
 const int Channel::kReadEvent = POLLIN|POLLPRI;
@@ -15,6 +19,7 @@ const int Channel::kWriteEvent = POLLOUT;
 Channel::Channel(EventLoop *loop, int fd)
     :loop_(loop),
      fd_(fd),
+     logHup_(true),
      events_(0),
      revents_(0),
      index_(-1),
@@ -58,18 +63,75 @@ void Channel::remove()
     loop_->removeChannel(this);
 }
 
-void Channel::handleEvent()
+string Channel::reventsToString() const
 {
+    return eventsToString(fd_, revents_);
+}
+string Channel::eventsToString() const
+{
+    return eventsToString(fd_, events_);
+}
+
+string Channel::eventsToString(int fd, int ev)
+{
+    std::ostringstream oss;
+    oss << fd << ": ";
+    if (ev & POLLIN)
+        oss << "IN ";
+    if (ev & POLLPRI)
+        oss << "PRI ";
+    if (ev & POLLOUT)
+        oss << "OUT ";
+    if (ev & POLLHUP)
+        oss << "HUP ";
+    if (ev & POLLRDHUP)
+        oss << "RDHUP ";
+    if (ev & POLLERR)
+        oss << "ERR ";
+    if (ev & POLLNVAL)
+        oss << "NVAL ";
+
+    return oss.str().c_str();
+}
+
+
+
+void Channel::handleEvent( Timestamp receiveTime )
+{
+    boost::shared_ptr<void> guard;
+    if(tied_)
+    {
+        guard = tie_.lock();
+        if(guard)
+        {
+            handleEventWithGuard(receiveTime);
+        }
+
+    }
+    else
+    {
+        handleEventWithGuard(receiveTime);
+    }
+}
+
+
+void Channel::handleEventWithGuard(Timestamp receiveTime)
+{
+
     eventHandling_ = true;
+    LOG_TRACE<<reventsToString();
     if(revents_&POLLNVAL)
     {
-        LOG_WARN<<"Channel::handle_event() POLLNYAL";
+        LOG_WARN<<"fd = "<<fd_<<"Channel::handle_event() POLLNVAL";
     }
 
 
     if((revents_ & POLLHUP)&&!revents_&POLLIN)
     {
-        LOG_WARN<<"Channel::handle_event() POLLHUP";
+        if(logHup_)
+        {
+            LOG_WARN<<"fd = "<<fd_<<"Channel::handle_event() POLLHUP";
+        }
         if (closeCallback_) closeCallback_();
     }
 
@@ -81,7 +143,7 @@ void Channel::handleEvent()
 
     if(revents_&(POLLIN|POLLPRI|POLLRDHUP))
     {
-        if(readCallback_) readCallback_();
+        if(readCallback_) readCallback_(receiveTime);
     }
     if(revents_& POLLOUT)
     {

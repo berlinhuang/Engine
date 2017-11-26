@@ -5,8 +5,11 @@
 #ifndef ENGINE_CHANNEL_H
 #define ENGINE_CHANNEL_H
 
+
+#include "../base/Timestamp.h"
 #include <boost/function.hpp>
 #include <boost/weak_ptr.hpp>
+
 
 class EventLoop;
 
@@ -17,12 +20,16 @@ class EventLoop;
 class Channel {
 public:
     typedef boost::function<void()> EventCallback;
+    typedef boost::function<void(Timestamp)> ReadEventCallback;
 
     Channel( EventLoop* loop, int fd);
     ~Channel();
-    void handleEvent();
 
-    void setReadCallback(const EventCallback& cb){ readCallback_ = cb;}
+    void handleEvent(Timestamp receiveTime);
+    void handleEventWithGuard(Timestamp receiveTime);
+
+    //TcpConnection::TcpConnection will call
+    void setReadCallback(const ReadEventCallback& cb){ readCallback_ = cb;}
     void setWriteCallback(const EventCallback& cb){ writeCallback_ = cb;}
     void setErrorCallback(const EventCallback& cb){ errorCallback_ = cb;}
     void setCloseCallback(const EventCallback& cb){ closeCallback_ = cb;}
@@ -40,11 +47,20 @@ public:
 
     int index(){ return index_;}
     void set_index(int idx){ index_ = idx;}
-    EventLoop* ownerLoop(){ return loop_;}
 
+    //for debug
+    string reventsToString() const;
+    string eventsToString() const;
+
+
+
+    EventLoop* ownerLoop(){ return loop_;}
     void remove();
 
 private:
+
+    static string eventsToString(int fd, int ev);
+
     static const int kNoneEvent;
     static const int kReadEvent;
     static const int kWriteEvent;
@@ -57,6 +73,8 @@ private:
 
     boost::weak_ptr<void> tie_;
     bool tied_;
+    bool       logHup_;
+
 
     int events_;
     int revents_;
@@ -64,8 +82,9 @@ private:
 
     bool addedToLoop_;
     bool eventHandling_;
+    //typedef boost::function<void(Timestamp)> ReadEventCallback;
+    ReadEventCallback readCallback_;
     // typedef boost::function<void()> EventCallback;
-    EventCallback readCallback_;
     EventCallback writeCallback_;
     EventCallback errorCallback_;
     EventCallback closeCallback_;

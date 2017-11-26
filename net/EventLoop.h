@@ -52,13 +52,10 @@ public:
     static EventLoop* getEventLoopOfCurrentThread();
 
     void runInLoop(const Functor& cb);
-
     void queueInLoop(const Functor& cb);
 
     TimerId runAt(const Timestamp& time, const TimerCallback& cb);
-
     TimerId runAfter(double delay, const TimerCallback& cb);
-
     TimerId runEvery(double interval, const TimerCallback& cb);
 
     void cancel(TimerId timerId);

@@ -20,7 +20,7 @@ TcpConnection::TcpConnection(EventLoop* loop, const string& nameArg, int sockfd,
  localAddr_(localAddr),
  peerAddr_(peerAddr)
 {
-    channel_->setReadCallback(boost::bind(&TcpConnection::handleRead,this));//messageCallback_
+    channel_->setReadCallback(boost::bind(&TcpConnection::handleRead,this,_1));//messageCallback_
     channel_->setWriteCallback(boost::bind(&TcpConnection::handleWrite,this));//writeCompleteCallback_
     channel_->setCloseCallback(boost::bind(&TcpConnection::handleClose,this));//closeCallback_
     channel_->setErrorCallback(boost::bind(&TcpConnection::handleError,this));
@@ -76,7 +76,7 @@ const char* TcpConnection::stateToString() const
 }
 
 
-void TcpConnection::handleRead()
+void TcpConnection::handleRead( Timestamp receiveTime )
 {
     loop_->assertInLoopThread();
     char buf[65536];
