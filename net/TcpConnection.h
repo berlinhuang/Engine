@@ -53,7 +53,7 @@ public:
     void connectEstablished();
     void connectDestroyed();
 
-    void handleRead();
+    void handleRead( Timestamp receiveTime);
     void handleWrite();
     void handleClose();
     void handleError();

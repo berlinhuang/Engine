@@ -11,9 +11,9 @@
 #include "./../../base/Logging.h"
 EventLoop* g_loop;
 
-void timeout()
+void timeout( Timestamp receiveTime )
 {
-    printf("Timeout!\n");
+    printf("Timeout! now = %s\n", receiveTime.toString().c_str());
     g_loop->quit();
 }
 

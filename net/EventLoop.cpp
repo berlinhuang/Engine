@@ -58,6 +58,7 @@ EventLoop::EventLoop()
 
 EventLoop::~EventLoop() {
     assert(!looping_);
+
 }
 
 
@@ -104,7 +105,7 @@ void EventLoop::loop()
         {
 //            (*it)->handleEvent();
             currentActiveChannel_ = *it;
-            currentActiveChannel_->handleEvent();
+            currentActiveChannel_->handleEvent(pollReturnTime_);
         }
         currentActiveChannel_ = NULL;
         eventHandling_ = false;
@@ -120,6 +121,10 @@ void EventLoop::loop()
 void EventLoop::quit()
 {
     quit_ = true;
+    if(!isInLoopThread())
+    {
+        wakeup();
+    }
 }
 
 
