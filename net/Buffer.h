@@ -83,6 +83,43 @@ public:
         append(str.data(), str.size());
     }
 
+//////////////////////////////////
+    void retrieveAll()
+    {
+        readerIndex_ = kCheapPrepend;
+        writerIndex_ = kCheapPrepend;
+    }
+
+    const char* peek() const
+    { return begin() + readerIndex_; }
+
+    void retrieve(size_t len)
+    {
+        assert(len <= readableBytes());
+        if (len < readableBytes())
+        {
+            readerIndex_ += len;
+        }
+        else
+        {
+            retrieveAll();
+        }
+    }
+    //Buffer中所有数据以字符串形式取走
+    string retrieveAsString(size_t len)
+    {
+        assert(len <= readableBytes());
+        string result(peek(), len);
+        retrieve(len);
+        return result;
+    }
+
+    string retrieveAllAsString()
+    {
+        return retrieveAsString(readableBytes());
+    }
+
+
 private:
     const char* begin() const
     {
