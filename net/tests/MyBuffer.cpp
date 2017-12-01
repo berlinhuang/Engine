@@ -118,4 +118,29 @@ BOOST_AUTO_TEST_CASE(testBufferGrow)
 
 
 
+BOOST_AUTO_TEST_CASE(testBufferInsideGrow)
+{
+    Buffer buf;
+    buf.append(string(800,'y'));
+    BOOST_CHECK_EQUAL(buf.readableBytes(),800);
+    BOOST_CHECK_EQUAL(buf.writableBytes(),Buffer::kInitialSize-800);
+    print(&buf, "append 800");
+
+
+    buf.retrieve(500);
+    BOOST_CHECK_EQUAL(buf.readableBytes(),300);
+    BOOST_CHECK_EQUAL(buf.writableBytes(), Buffer::kInitialSize-800);
+    BOOST_CHECK_EQUAL(buf.prependableBytes(), Buffer::kCheapPrepend+500);
+    print(&buf, "retrieve 500");
+
+
+    buf.append(string(300, 'z'));
+    BOOST_CHECK_EQUAL(buf.readableBytes(), 600);
+    BOOST_CHECK_EQUAL(buf.writableBytes(), Buffer::kInitialSize-600);
+    BOOST_CHECK_EQUAL(buf.prependableBytes(), Buffer::kCheapPrepend);
+    print(&buf, "append 300");
+}
+
+
+
 

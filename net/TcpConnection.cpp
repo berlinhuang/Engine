@@ -11,6 +11,21 @@
 #include <boost/bind.hpp>
 
 
+void defaultConnectionCallback(const TcpConnectionPtr& conn)
+{
+    LOG_TRACE << conn->localAddress().toIpPort() << " -> "
+              << conn->peerAddress().toIpPort() << " is "
+              << (conn->connected() ? "UP" : "DOWN");
+
+}
+
+void defaultMessageCallback(const TcpConnectionPtr&, Buffer* buf, Timestamp)
+{
+    buf->retrieveAll();
+}
+
+
+
 TcpConnection::TcpConnection(EventLoop* loop, const string& nameArg, int sockfd, const InetAddress& localAddr, const InetAddress& peerAddr)
 :loop_(CHECK_NOTNULL(loop)),
  name_(nameArg),
@@ -74,16 +89,29 @@ const char* TcpConnection::stateToString() const
             return "unknown state";
     }
 }
+////////////////////////////////////////
 
+void TcpConnection::shutdownInLoop()
+{
+    loop_->assertInLoopThread();
+    if (!channel_->isWriting())
+    {
+        // we are not writing
+        socket_->shutdownWrite();
+    }
+}
 
 void TcpConnection::handleRead( Timestamp receiveTime )
 {
     loop_->assertInLoopThread();
-    char buf[65536];
-    ssize_t  n = ::read(channel_->fd(), buf, sizeof buf);
+//    char buf[65536];
+//    ssize_t  n = ::read(channel_->fd(), buf, sizeof buf);
+    int savedErrno = 0;
+    ssize_t  n = inputBuffer_.readFd(channel_->fd(), &savedErrno);
     if(n>0)
     {
-        messageCallback_(shared_from_this(),buf, n);
+//        messageCallback_(shared_from_this(),buf, n);
+        messageCallback_(shared_from_this(),&inputBuffer_, receiveTime);
     }
     else if(n == 0)
     {
@@ -91,6 +119,8 @@ void TcpConnection::handleRead( Timestamp receiveTime )
     }
     else
     {
+        errno = savedErrno;
+        LOG_SYSERR<<"TcpConnection::handleRead";
         handleError();
     }
 
@@ -100,10 +130,17 @@ void TcpConnection::handleRead( Timestamp receiveTime )
 void TcpConnection::handleClose()
 {
     loop_->assertInLoopThread();
-    LOG_TRACE<<"TcpConnection::handleClose state = "<<state_;
-    assert(state_== kConnected);
+    LOG_TRACE<<"TcpConnection::handleClose fd="<<channel_->fd()<<" state = "<<stateToString();
+    assert(state_== kConnected||state_ == kDisconnecting);
+    //leave it to dtor
+    setState(kDisconnected);
     channel_->disableAll();
-    closeCallback_(shared_from_this());
+//    closeCallback_(shared_from_this());
+
+    TcpConnectionPtr guardThis(shared_from_this());
+    connectionCallback_(guardThis);////默认调用defaultConnectionCallback
+    closeCallback_(guardThis);
+
 }
 
 void TcpConnection::handleError()
@@ -114,14 +151,42 @@ void TcpConnection::handleError()
 
 }
 
+
 void TcpConnection::handleWrite()
 {
     loop_->assertInLoopThread();
-//    if(channel_->isWriting())
-//    {
-//
-//
-//    }
+    if(channel_->isWriting())
+    {
+        //write(sockfd, buf, count);
+        ssize_t n = sockets::write(channel_->fd(),
+                                   outputBuffer_.peek(),
+                                   outputBuffer_.readableBytes());
+        if(n > 0)
+        {
+            outputBuffer_.retrieve(n);
+            if(outputBuffer_.readableBytes() == 0)
+            {
+                channel_->disableWriting();
+                if(writeCompleteCallback_)
+                {
+                    loop_->queueInLoop((boost::bind(writeCompleteCallback_, shared_from_this())));
+                }
+                if(state_ == kDisconnecting )
+                {
+                    shutdownInLoop();
+                }
+            }
+        }
+        else
+        {
+            LOG_SYSERR<<"TcpConnection::handleWrite";
+        }
+    }
+    else
+    {
+        LOG_TRACE<<"Connection fd = "<<channel_->fd()
+                                     <<"is down, not more writing";
+    }
 }
 
 

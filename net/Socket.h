@@ -27,7 +27,7 @@ public:
 
     void setReuseAddr(bool on);
 
-
+    void shutdownWrite();
 
 
 private:

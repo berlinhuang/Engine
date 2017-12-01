@@ -76,6 +76,12 @@ namespace sockets
         return connfd;
     }
 
+    /**
+     * close函数会关闭套接字ID，
+     * 如果有其他的进程共享着这个套接字，那么它仍然是打开的，
+     * 这个连接仍然可以用来读和写，并且有时候这是非常重要的 ，特别是对于多进程并发服务器来说。
+     * @param sockfd
+     */
     void close(int sockfd)
     {
         if (::close(sockfd) < 0)
@@ -84,6 +90,25 @@ namespace sockets
         }
     }
 
+    /**
+     * shutdown会切断进程共享的套接字的所有连接，不管这个套接字的引用计数是否为零，
+     * 那些试图读得进程将会接收到EOF标识，那些试图写的进程将会检测到SIGPIPE信号，
+     * 同时可利用shutdown的第二个参数选择断连的方式
+     * @param sockfd
+     */
+    void shutdownWrite(int sockfd)
+    {
+        /**
+         该函数的行为依赖于howto的值
+        1.SHUT_RD：值为0，关闭连接的读这一半。
+        2.SHUT_WR：值为1，关闭连接的写这一半。
+        3.SHUT_RDWR：值为2，连接的读和写都关闭。
+         */
+        if (::shutdown(sockfd, SHUT_WR) < 0)
+        {
+            LOG_SYSERR << "sockets::shutdownWrite";
+        }
+    }
 
     void toIp(char* buf, size_t size, const struct sockaddr* addr)
     {
@@ -134,6 +159,25 @@ namespace sockets
         }
     }
 
+
+    ssize_t read(int sockfd, void *buf, size_t count)
+    {
+        return ::read(sockfd, buf, count);
+    }
+
+    ssize_t readv(int sockfd, const struct iovec *iov, int iovcnt)
+    {
+        return ::readv(sockfd, iov, iovcnt);
+    }
+
+    ssize_t write(int sockfd, const void *buf, size_t count)
+    {
+        return ::write(sockfd, buf, count);
+    }
+
+
+
+
     int getSocketError(int sockfd)
     {
         int optval;
@@ -176,10 +220,6 @@ namespace sockets
     }
 
 
-    ssize_t write(int sockfd, const void *buf, size_t count)
-    {
-        return ::write(sockfd, buf, count);
-    }
 
 
     int createNonblockingOrDie(sa_family_t family)

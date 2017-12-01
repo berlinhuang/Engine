@@ -11,11 +11,17 @@
 #include "./../base/Logging.h"
 #include <boost/bind.hpp>
 
+
+
+
+
 TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr, const string& nameArg)
 :loop_(CHECK_NOTNULL(loop)),
  ipPort_(listenAddr.toIpPort()),
  name_(nameArg),
  acceptor_(new Acceptor(loop, listenAddr)),// socket bind
+ connectionCallback_(defaultConnectionCallback),// declare in Callbacks.h and define in TcpConnection.cpp
+ messageCallback_(defaultMessageCallback),
  nextConnId_(1)
 {
     acceptor_->setNewConnectionCallback( boost::bind(&TcpServer::newConnection,this,_1,_2));  // listen socket  NewConnection

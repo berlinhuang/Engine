@@ -43,7 +43,14 @@ public:
     bool isNoneEvent()const { return events_ == kNoneEvent;}
 
     void enableReading(){ events_ |= kReadEvent; update();}// 将相应的Channel事件处理器加入到eventpool中
+    void disableReading(){ events_ &= ~kReadEvent; update();}
+    void enableWriting() { events_ |= kWriteEvent; update(); }
+    void disableWriting() { events_ &= ~kWriteEvent; update(); }
     void disableAll() { events_ = kNoneEvent; update(); }
+
+    bool isWriting() const { return events_ & kWriteEvent; }
+    bool isReading() const { return events_ & kReadEvent; }
+
 
     int index(){ return index_;}
     void set_index(int idx){ index_ = idx;}

@@ -8,6 +8,9 @@
 #include "./../base/StringPiece.h"
 #include <vector>
 #include <assert.h>
+#include "./../base/Type.h"
+
+
 /// @code
 /// +-------------------+------------------+------------------+
 /// | prependable bytes |  readable bytes  |  writable bytes  |
@@ -118,6 +121,13 @@ public:
     {
         return retrieveAsString(readableBytes());
     }
+
+
+    /// Read data directly into buffer.
+    ///
+    /// It may implement with readv(2)
+    /// @return result of read(2), @c errno is saved
+    ssize_t readFd(int fd, int* savedErrno);
 
 
 private:

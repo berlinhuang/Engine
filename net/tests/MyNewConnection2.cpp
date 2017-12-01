@@ -25,12 +25,21 @@ void onConnection(const TcpConnectionPtr& conn)
 
 
 
+//void onMessage(const TcpConnectionPtr& conn,
+//                const char*data,
+//                ssize_t len)
+//{
+//    printf("onMessage():received %zd bytes from connection [%s]\n",
+//        len,conn->name().c_str());
+//}
+
 void onMessage(const TcpConnectionPtr& conn,
-                const char*data,
-                ssize_t len)
+               Buffer *buf,
+               Timestamp receiveTime)
 {
-    printf("onMessage():received %zd bytes from connection [%s]\n",
-        len,conn->name().c_str());
+    string msg(buf->retrieveAllAsString());
+    printf("onMessage():received %zd bytes from connection [%s] at %s\n",
+           msg.size(),conn->name().c_str(),receiveTime.toFormattedString().c_str());
 }
 
 
@@ -46,6 +55,15 @@ int main()
 
     TcpServer server(&loop,listenAddr,"myServer");
     server.setConnectionCallback(onConnection);
+    /**
+     *
+     * TcpServer::setMessageCallback( onMessage )
+     *     * messageCallback_ = onMessage
+     *
+     * TcpServer::newConnection
+     *     * conn->setMessageCallback(messageCallback_)
+     *
+     */
     server.setMessageCallback(onMessage);
     server.start();//listen
     loop.loop();

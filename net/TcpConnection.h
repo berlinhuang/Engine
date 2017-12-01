@@ -7,6 +7,8 @@
 
 #include "Callbacks.h"
 #include "./InetAddress.h"// forward declare seems not working
+#include "./Buffer.h"
+
 
 #include <boost/shared_ptr.hpp>
 #include <boost/scoped_ptr.hpp>
@@ -16,7 +18,6 @@
 class EventLoop;
 class Socket;
 class Channel;
-
 
 
 class TcpConnection:public boost::enable_shared_from_this<TcpConnection>
@@ -49,6 +50,8 @@ public:
     { messageCallback_ = cb; }
     void setCloseCallback(const CloseCallback& cb)
     { closeCallback_ = cb; }
+    void setWriteCompleteCallback(const WriteCompleteCallback& cb)
+    { writeCompleteCallback_ = cb;   }
 
     void connectEstablished();
     void connectDestroyed();
@@ -59,7 +62,15 @@ public:
     void handleError();
 
 
+    void shutdownInLoop();
+
     const char* stateToString() const;
+
+    Buffer* inputBuffer()
+    { return &inputBuffer_; }
+
+    Buffer* outputBuffer()
+    { return &outputBuffer_; }
 
 private:
 
@@ -83,6 +94,10 @@ private:
     ConnectionCallback connectionCallback_;
     MessageCallback messageCallback_;
     CloseCallback closeCallback_;
+    WriteCompleteCallback writeCompleteCallback_;
+
+    Buffer inputBuffer_;
+    Buffer outputBuffer_;
 };
 
 
