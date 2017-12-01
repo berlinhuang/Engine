@@ -12,7 +12,7 @@ set(net_SRCS
         TcpServer.cpp
         Buffer.cpp
         TcpConnection.cpp
-
+        EventLoopThreadPool.h
         )
 add_library(engine_net ${net_SRCS})
 target_link_libraries(engine_net pthread)

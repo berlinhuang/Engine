@@ -59,6 +59,7 @@ void TcpServer::start()
 
 void TcpServer::newConnection(int sockfd, const InetAddress &peerAddr) {
     loop_->assertInLoopThread();
+    //1. 从threadpool中选一个eventloop
     char buf[32];
     snprintf(buf,sizeof buf, "#%d",nextConnId_);
     ++nextConnId_;
@@ -69,12 +70,15 @@ void TcpServer::newConnection(int sockfd, const InetAddress &peerAddr) {
             <<"] from "<<peerAddr.toIpPort();
     InetAddress localAddr(sockets::getLocalAddr(sockfd));
 
+    //2. 新建一个TcpConnection结构体管理这个连接
     TcpConnectionPtr conn(
             new TcpConnection(loop_,connName, sockfd, localAddr, peerAddr));
     connections_[connName]=conn;
     conn->setConnectionCallback(connectionCallback_);// TcpServer::setConnectionCallback
     conn->setMessageCallback(messageCallback_);//TcpServer::setMessageCallback
+    conn->setWriteCompleteCallback(writeCompleteCallback_);
     conn->setCloseCallback(boost::bind(&TcpServer::removeConnection,this,_1));
+    //4. 将连接加入到1中所选的eventloop中运行
     conn->connectEstablished();
 }
 

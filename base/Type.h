@@ -4,6 +4,11 @@
 
 #ifndef ENGINE_TYPE_H
 #define ENGINE_TYPE_H
+
+#include <string>
+
+using std::string;
+
 template <typename To, typename From>
 inline To implicit_cast(From const &f)
 {

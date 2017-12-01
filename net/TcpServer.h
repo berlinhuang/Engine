@@ -27,6 +27,8 @@ public:
     void setMessageCallback(const MessageCallback& cb)
     { messageCallback_  = cb; }
 
+    void setWriteCompleteCallback( const WriteCompleteCallback& cb)
+    { writeCompleteCallback_ = cb;  }
 private:
 
     void newConnection(int sockfd, const InetAddress& peerAddr);
@@ -48,7 +50,7 @@ private:
     ConnectionCallback connectionCallback_;
     MessageCallback messageCallback_;
 
-
+    WriteCompleteCallback writeCompleteCallback_;
 
 
 

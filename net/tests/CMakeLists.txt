@@ -32,3 +32,7 @@ target_link_libraries(MyNewConnection2 engine_net engine_base)
 add_executable(MyBuffer  MyBuffer.cpp)
 target_link_libraries(MyBuffer engine_net engine_base boost_unit_test_framework)
 add_test(NAME MyBuffer COMMAND MyBuffer)
+
+
+add_executable(MyEventLoopThreadPool MyEventLoopThreadPool.cpp)
+target_link_libraries( MyEventLoopThreadPool engine_net engine_base)
