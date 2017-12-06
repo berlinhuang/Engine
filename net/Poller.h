@@ -9,7 +9,7 @@
 #include "./EventLoop.h"
 #include "./../base/Timestamp.h"
 
-struct pollfd;
+//struct pollfd;
 
 class Channel;
 
@@ -17,26 +17,25 @@ class Poller {
 public:
     typedef std::vector<Channel*> ChannelList;
     Poller(EventLoop* loop);
-    ~Poller();
+    virtual ~Poller();
 
-    Timestamp poll(int timeoutMs, ChannelList* activeChannels);
+    virtual Timestamp poll(int timeoutMs, ChannelList* activeChannels) = 0;
 
-    void updateChannel(Channel* channel);
-    void removeChannel(Channel* channel);
-    bool hasChannel(Channel* channel);
+    virtual void updateChannel(Channel* channel) = 0;
 
-    void assertInLoopThread(){ ownerLoop_->assertInLoopThread();}
-private:
-    void fillActiveChannels(int numEvents, ChannelList* activeChannels) const;
+    virtual void removeChannel(Channel* channel) = 0;
 
-    EventLoop* ownerLoop_;
+    virtual bool hasChannel(Channel* channel) const;
 
+    static Poller* newDefaultPoller(EventLoop* loop);
+
+    void assertInLoopThread() const { ownerLoop_->assertInLoopThread();}
+
+protected:
     typedef std::map<int,Channel*> ChannelMap;//fd -> channel*
     ChannelMap channels_;
-
-    typedef std::vector<struct pollfd> PollFdList;
-    PollFdList pollfds_;
-
+private:
+    EventLoop* ownerLoop_;
 };
 
 
