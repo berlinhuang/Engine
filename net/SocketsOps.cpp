@@ -233,7 +233,7 @@ namespace sockets
 
   setNonBlockAndCloseOnExec(sockfd);
 #else
-        int sockfd = ::socket(family, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
+        int sockfd = ::socket(family, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);//linux-2.6.27
         if (sockfd < 0)
         {
             LOG_SYSFATAL << "sockets::createNonblockingOrDie";
