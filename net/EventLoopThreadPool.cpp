@@ -55,7 +55,7 @@ EventLoop* EventLoopThreadPool::getNextLoop()
     if (!loops_.empty())
     {
         // round-robin
-        loop = loops_[next_]//
+        loop = loops_[next_];//
         ++next_;
         if (implicit_cast<size_t>(next_) >= loops_.size())
         {
