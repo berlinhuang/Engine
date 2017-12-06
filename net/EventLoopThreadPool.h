@@ -22,6 +22,7 @@ public:
     typedef boost::function<void(EventLoop*)> ThreadInitCallback;
 
     EventLoopThreadPool(EventLoop* baseLoop, const string& nameArg);
+
     ~EventLoopThreadPool();
 
     void setThreadNum(int numThreads)
@@ -57,7 +58,8 @@ private:
     bool started_;
     int numThreads_;
     int next_;
-    boost::ptr_vector<EventLoopThread> threads_;
+    //std::vector<boost::shared_ptr<EventLoopThread>> threads_;//效率不高
+    boost::ptr_vector<EventLoopThread> threads_;//指针容器
     std::vector<EventLoop*> loops_;
 
 };
