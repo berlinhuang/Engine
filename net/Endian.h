@@ -27,4 +27,8 @@ namespace sockets
         return be16toh(net16);
     }
 
+    inline uint32_t networkToHost32(uint32_t net32)
+    {
+        return be32toh(net32);
+    }
 }

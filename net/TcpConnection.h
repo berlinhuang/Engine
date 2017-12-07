@@ -52,6 +52,11 @@ public:
     { closeCallback_ = cb; }
     void setWriteCompleteCallback(const WriteCompleteCallback& cb)
     { writeCompleteCallback_ = cb;   }
+    void setHighWaterMarkCallback(const HighWaterMarkCallback& cb, size_t highWaterMark)
+    {
+        highWaterMarkCallback_ = cb;
+        highWaterMark_ = highWaterMark;
+    }
 
     void connectEstablished();
     void connectDestroyed();
@@ -62,7 +67,13 @@ public:
     void handleError();
 
 
+    void shutdown();
     void shutdownInLoop();
+
+    void sendInLoop(const void* data, size_t len);
+    void sendInLoop(const StringPiece& message);
+    void send(Buffer* buf);
+
 
     const char* stateToString() const;
 
@@ -90,11 +101,16 @@ private:
     const InetAddress localAddr_;
     const InetAddress peerAddr_;
 
+    size_t highWaterMark_;
+
+
 
     ConnectionCallback connectionCallback_;
     MessageCallback messageCallback_;
     CloseCallback closeCallback_;
     WriteCompleteCallback writeCompleteCallback_;
+    HighWaterMarkCallback highWaterMarkCallback_;
+
 
     Buffer inputBuffer_;
     Buffer outputBuffer_;

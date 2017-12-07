@@ -122,6 +122,18 @@ public:
         return retrieveAsString(readableBytes());
     }
 
+/////////////////////////////////////////////
+    void prepend(const void* /*restrict*/ data, size_t len)
+    {
+        assert(len <= prependableBytes());
+        readerIndex_ -= len;
+        const char* d = static_cast<const char*>(data);
+        std::copy(d, d+len, begin()+readerIndex_);
+    }
+
+
+
+
 
     /// Read data directly into buffer.
     ///
