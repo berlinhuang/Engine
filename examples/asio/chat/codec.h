@@ -52,10 +52,10 @@ public:
     void send(TcpConnection* conn, const StringPiece& message)
     {
         Buffer buf;
-        buf.append(message.data(),message.size());
+        buf.append(message.data(),message.size());//把string message 打包为 Buffer
         int32_t  len = static_cast<int32_t>(message.size());
         int32_t be32 = sockets::hostToNetwork32(len);
-        buf.prepend(&be32, sizeof be32);
+        buf.prepend(&be32, sizeof be32);//每条消息都有一个是个直接的头部
         conn->send(&buf);
     }
 

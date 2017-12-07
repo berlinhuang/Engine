@@ -4,10 +4,12 @@ project(Engine)
 set(CMAKE_CXX_STANDARD 11)
 
 
-#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-message(${CMAKE_BINARY_DIR})
-#set(ENV{LOG_TRACE} 1)
+message("Bin: " ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+set(ENV{USE_EPOLL} 1)
+
+message("USE_EPOLL: " $ENV{USE_EPOLL})
 #
 #set(SOURCE_FILES base/Thread.cpp base/Thread.h)
 #add_library(Thread ${SOURCE_FILES})

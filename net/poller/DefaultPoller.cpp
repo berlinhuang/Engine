@@ -12,7 +12,7 @@
 
 Poller* Poller::newDefaultPoller(EventLoop* loop)
 {
-//    LOG_INFO<<::getenv("PATH");
+    LOG_INFO<<::getenv("USE_EPOLL");
     if (::getenv("USE_EPOLL"))
     {
         return new EPollPoller(loop);

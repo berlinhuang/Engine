@@ -51,11 +51,12 @@ private:
 
     void onStringMessage(const TcpConnectionPtr&, const string& message, Timestamp)// codec will callback
     {
+        //循环 广播消息
         for (ConnectionList::iterator it = connections_.begin();
              it != connections_.end();
              ++it)
         {
-            codec_.send(get_pointer(*it), message);
+            codec_.send(get_pointer(*it), message);////把string message 打包为 Buffer
         }
     }
 
@@ -71,19 +72,20 @@ private:
 
 int main(int argc, char* argv[])
 {
-    LOG_INFO << "pid = " << getpid();
-    if (argc > 1)
-    {
+//    LOG_INFO << "pid = " << getpid();
+//    if (argc > 1)
+//    {
         EventLoop loop;
-        uint16_t port = static_cast<uint16_t>(atoi(argv[1]));
+//        uint16_t port = static_cast<uint16_t>(atoi(argv[1]));
+        uint16_t port = 9981;
         InetAddress serverAddr(port);
         ChatServer server(&loop, serverAddr);
         server.start();
         loop.loop();
-    }
-    else
-    {
-        printf("Usage: %s port\n", argv[0]);
-    }
+//    }
+//    else
+//    {
+//        printf("Usage: %s port\n", argv[0]);
+//    }
 }
 
