@@ -3,6 +3,10 @@ project(Engine)
 
 set(CMAKE_CXX_STANDARD 11)
 
+
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Bin)
+
+message(${CMAKE_BINARY_DIR})
 #set(ENV{LOG_TRACE} 1)
 #
 #set(SOURCE_FILES base/Thread.cpp base/Thread.h)

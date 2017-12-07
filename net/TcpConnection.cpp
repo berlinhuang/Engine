@@ -113,6 +113,28 @@ void TcpConnection::shutdown()
 }
 
 
+void TcpConnection::forceClose()
+{
+    // FIXME: use compare and swap
+    if (state_ == kConnected || state_ == kDisconnecting)
+    {
+        setState(kDisconnecting);
+        loop_->queueInLoop(boost::bind(&TcpConnection::forceCloseInLoop, shared_from_this()));
+    }
+}
+
+
+void TcpConnection::forceCloseInLoop()
+{
+    loop_->assertInLoopThread();
+    if (state_ == kConnected || state_ == kDisconnecting)
+    {
+        // as if we received 0 byte in handleRead();
+        handleClose();
+    }
+}
+
+
 ///////////////////////////////////////
 
 void TcpConnection::sendInLoop(const void* data, size_t len)

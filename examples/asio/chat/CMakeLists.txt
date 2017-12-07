@@ -1,5 +1,5 @@
-#add_executable(asio_chat_client client.cc)
-#target_link_libraries(asio_chat_client muduo_net)
+add_executable(asio_chat_client client.cpp)
+target_link_libraries(asio_chat_client engine_base engine_net)
 #
 #add_executable(asio_chat_loadtest loadtest.cc)
 #target_link_libraries(asio_chat_loadtest muduo_net)

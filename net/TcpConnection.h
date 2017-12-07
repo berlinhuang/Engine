@@ -67,6 +67,9 @@ public:
     void handleError();
 
 
+    void forceClose();
+    void forceCloseInLoop();
+
     void shutdown();
     void shutdownInLoop();
 

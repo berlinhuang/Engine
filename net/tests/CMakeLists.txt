@@ -36,3 +36,9 @@ add_test(NAME MyBuffer COMMAND MyBuffer)
 
 add_executable(MyEventLoopThreadPool MyEventLoopThreadPool.cpp)
 target_link_libraries( MyEventLoopThreadPool engine_net engine_base)
+
+add_executable(MyTcpClient_reg1 MyTcpClient_reg1.cpp)
+target_link_libraries( MyTcpClient_reg1 engine_net engine_base)
+
+add_executable(MyTcpClient_reg2 MyTcpClient_reg2.cpp)
+target_link_libraries( MyTcpClient_reg2 engine_net engine_base)
