@@ -28,6 +28,11 @@ public:
         client_.enableRetry();
     }
 
+    //// connector_->start();
+    //// loop_->runInLoop(boost::bind(&Connector::startInLoop,this));
+    //// Connector::startInLoop
+    //// Connector::connect();
+
     void connect()
     {
         client_.connect();

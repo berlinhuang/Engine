@@ -36,7 +36,7 @@ Connector::~Connector()
 void Connector::start()
 {
     connect_ = true;
-    loop_->runInLoop(boost::bind(&Connector::startInLoop,this));
+    loop_->runInLoop(boost::bind(&Connector::startInLoop,this));// FIXME: unsafe
 }
 
 
@@ -57,18 +57,24 @@ void Connector::startInLoop()
 
 void Connector::restart()
 {
-
+    loop_->assertInLoopThread();
+    setState(kDisconnected);
+    retryDelayMs_ = kInitRetryDelayMs;
+    connect_ = true;
+    startInLoop();
 }
 void Connector::stop()
 {
-
+    connect_ =false;
+    loop_->queueInLoop(boost::bind(&Connector::startInLoop,this));// FIXME: unsafe
+    // FIXME: cancel timer
 }
 
 
 void Connector::connect()
 {
-    int sockfd = sockets::createNonblockingOrDie(serverAddr_.family());
-    int ret = sockets::connect(sockfd, serverAddr_.getSockAddr());
+    int sockfd = sockets::createNonblockingOrDie(serverAddr_.family());                                   // socket
+    int ret = sockets::connect(sockfd, serverAddr_.getSockAddr());                                        // connect
     int savedErrno = (ret == 0) ? 0 : errno;
     switch (savedErrno)
     {
@@ -195,9 +201,9 @@ void Connector::retry(int sockfd)
     if (connect_)
     {
         LOG_INFO << "Connector::retry - Retry connecting to " << serverAddr_.toIpPort()
-                 << " in " << retryDelayMs_ << " milliseconds. ";
-        loop_->runAfter(retryDelayMs_/1000.0,
-                        boost::bind(&Connector::startInLoop, shared_from_this()));
+                 << " in " << retryDelayMs_
+                 << " milliseconds. ";
+        loop_->runAfter(retryDelayMs_/1000.0,  boost::bind(&Connector::startInLoop, shared_from_this()));
         retryDelayMs_ = std::min(retryDelayMs_ * 2, kMaxRetryDelayMs);
     }
     else

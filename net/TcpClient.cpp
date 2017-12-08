@@ -87,11 +87,19 @@ void TcpClient::connect()
 }
 void TcpClient::disconnect()
 {
-
+    connect_ = false;
+    {
+        MutexLockGuard lock(mutex_);
+        if(connection_)
+        {
+            connection_->shutdown();
+        }
+    }
 }
 void TcpClient::stop()
 {
-
+    connect_ = false;
+    connector_->stop();
 }
 
 
@@ -127,5 +135,19 @@ void TcpClient::newConnection(int sockfd)
 
 void TcpClient::removeConnection(const TcpConnectionPtr& conn)
 {
+    loop_->assertInLoopThread();
+    assert(loop_ == conn->getLoop());
+    {
+        MutexLockGuard lock(mutex_);
+        assert(connection_ == conn);
+        connection_.reset();
+    }
+    loop_->queueInLoop(boost::bind(&TcpConnection::connectDestroyed,conn));
+    if(retry_&&connect_)
+    {
+        LOG_INFO << "TcpClient::connect[" << name_
+                 << "] - Reconnecting to " << connector_->serverAddress().toIpPort();
+        connector_->restart();
+    }
 
 }
