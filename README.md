@@ -82,9 +82,9 @@ taskQueue.post(task);
     - Reactor((single IO thread) + thread pool( restricted threads)
     - multiple Reactors( multiple IO threads, no worker thread )
     
-### 3. about thread
+## about thread
 > Linux能同时启动多少个线程 ?
-对于32-bit Linux，一个进程的地址空间是 4G，其中用户态能访问 3G 左右，而一个线程的默认栈 (stack) 大小是 10M，心算可知，一个进程大约最多能同时启动 300 个线程左右
+- 对于32-bit Linux，一个进程的地址空间是 4G，其中用户态能访问 3G 左右，而一个线程的默认栈 (stack) 大小是 10M，心算可知，一个进程大约最多能同时启动 300 个线程左右
 
 > 多线程能提高并发度吗？
 - 如果指的是“并发连接数”，不能。
