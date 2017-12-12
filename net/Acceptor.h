@@ -17,7 +17,7 @@ class Acceptor {
 public:
     typedef boost::function< void (int sockfd, const InetAddress&) > NewConnectionCallback;
 
-    Acceptor(EventLoop* loop, const InetAddress& listenAddr);
+    Acceptor(EventLoop* loop, const InetAddress& listenAddr, bool reuseport);
     ~Acceptor();
     void setNewConnectionCallback(const NewConnectionCallback& cb)
     {

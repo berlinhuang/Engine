@@ -84,6 +84,7 @@ private:
     mutable MutexLock mutex_;
     std::vector<Functor> pendingFunctors_; // @GuardedBy mutex_
 
+
 };
 
 

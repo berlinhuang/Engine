@@ -42,3 +42,7 @@ target_link_libraries( MyTcpClient_reg1 engine_net engine_base)
 
 add_executable(MyTcpClient_reg2 MyTcpClient_reg2.cpp)
 target_link_libraries( MyTcpClient_reg2 engine_net engine_base)
+
+
+add_executable(MyEventLoopThread1 MyEventLoopThread1.cpp)
+target_link_libraries(MyEventLoopThread1 engine_net engine_base)

@@ -56,11 +56,11 @@ private:
     EventLoop* baseLoop_;
     string name_;
     bool started_;
-    int numThreads_;
-    int next_;
+    int numThreads_; // 线程数
+    int next_; // 新连接到来，所选择的EventLoop对象下标
     //std::vector<boost::shared_ptr<EventLoopThread>> threads_;//效率不高
-    boost::ptr_vector<EventLoopThread> threads_;//指针容器
-    std::vector<EventLoop*> loops_;
+    boost::ptr_vector<EventLoopThread> threads_;//指针容器 IO线程列表
+    std::vector<EventLoop*> loops_;// EventLoop列表
 
 };
 

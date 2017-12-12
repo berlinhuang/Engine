@@ -76,7 +76,7 @@ taskQueue.post(task);
 
 > muduo 
 
-- 就是采用这种模型 multiple Reactors + thread Pool
+- 就是采用这种模型 multiple Reactors(mainReactor + subReactors)适用于IO密集型 + thread Pool适用计算密集型
 - 也可以实现
     - Reactor(single IO thread, no worker thread)
     - Reactor((single IO thread) + thread pool( restricted threads)

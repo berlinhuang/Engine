@@ -5,7 +5,7 @@
 #include "Socket.h"
 #include "SocketsOps.h"
 #include "InetAddress.h"
-
+#include "./../base/Logging.h"
 Socket::~Socket()
 {
     sockets::close(sockfd_);
@@ -43,6 +43,24 @@ void Socket::setReuseAddr(bool on)
     ::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR,
                  &optval, static_cast<socklen_t>(sizeof optval));
     // FIXME CHECK
+}
+
+void Socket::setReusePort(bool on)
+{
+#ifdef SO_REUSEPORT
+    int optval = on ? 1 : 0;
+    int ret = ::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEPORT,
+                           &optval, static_cast<socklen_t>(sizeof optval));
+    if (ret < 0 && on)
+    {
+        LOG_SYSERR << "SO_REUSEPORT failed.";
+    }
+#else
+    if (on)
+  {
+    LOG_ERROR << "SO_REUSEPORT is not supported.";
+  }
+#endif
 }
 
 

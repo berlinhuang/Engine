@@ -8,18 +8,22 @@
 #include "SocketsOps.h"
 #include "TcpConnection.h"
 #include "Acceptor.h"
+#include "EventLoopThreadPool.h"
+
 #include "./../base/Logging.h"
+
 #include <boost/bind.hpp>
 
 
 
 
 
-TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr, const string& nameArg)
+TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr, const string& nameArg, Option option)
 :loop_(CHECK_NOTNULL(loop)),
  ipPort_(listenAddr.toIpPort()),
  name_(nameArg),
- acceptor_(new Acceptor(loop, listenAddr)),// socket bind
+ acceptor_(new Acceptor(loop, listenAddr, option==kReusePort)),// socket bind
+ threadPool_(new EventLoopThreadPool(loop, name_)),
  connectionCallback_(defaultConnectionCallback),// declare in Callbacks.h and define in TcpConnection.cpp
  messageCallback_(defaultMessageCallback),
  nextConnId_(1)
@@ -43,11 +47,18 @@ TcpServer::~TcpServer()
     }
 }
 
+void TcpServer::setThreadNum(int numThreads)
+{
+    assert(0 <= numThreads);
+    threadPool_->setThreadNum(numThreads);
+}
+
 
 void TcpServer::start()
 {
     if(started_.getAndSet(1) == 0)
     {
+        threadPool_->start(threadInitCallback_);
         assert(!acceptor_->listenning());
         //自由方法来说，直接boost::bind(函数名, 参数1，参数2，...)
         //类方法来说，直接boost::bind(&类名::方法名，类实例指针，参数1，参数2）
@@ -60,8 +71,9 @@ void TcpServer::start()
 void TcpServer::newConnection(int sockfd, const InetAddress &peerAddr) {
     loop_->assertInLoopThread();
     //1. 从threadpool中选一个eventloop
-    char buf[32];
-    snprintf(buf,sizeof buf, "#%d",nextConnId_);
+    EventLoop* ioLoop = threadPool_->getNextLoop();
+    char buf[64];
+    snprintf(buf,sizeof buf, "-%s#%d", ipPort_.c_str(), nextConnId_);
     ++nextConnId_;
     std::string connName = name_+buf;
 
@@ -72,14 +84,15 @@ void TcpServer::newConnection(int sockfd, const InetAddress &peerAddr) {
 
     //2. 新建一个TcpConnection结构体管理这个连接
     TcpConnectionPtr conn(
-            new TcpConnection(loop_,connName, sockfd, localAddr, peerAddr));
+            new TcpConnection(ioLoop,connName, sockfd, localAddr, peerAddr));
     connections_[connName]=conn;
+    //3. 设置连接的一些属性
     conn->setConnectionCallback(connectionCallback_);// TcpServer::setConnectionCallback
     conn->setMessageCallback(messageCallback_);//TcpServer::setMessageCallback
     conn->setWriteCompleteCallback(writeCompleteCallback_);
     conn->setCloseCallback(boost::bind(&TcpServer::removeConnection,this,_1));
     //4. 将连接加入到1中所选的eventloop中运行
-    conn->connectEstablished();
+    ioLoop->runInLoop(boost::bind(&TcpConnection::connectEstablished,conn));
 }
 
 void TcpServer::removeConnection(const TcpConnectionPtr& conn)

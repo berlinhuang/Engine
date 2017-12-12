@@ -8,13 +8,14 @@
 #include "SocketsOps.h"
 #include <boost/bind.hpp>
 
-Acceptor::Acceptor(EventLoop *loop, const InetAddress &listenAddr)
+Acceptor::Acceptor(EventLoop *loop, const InetAddress &listenAddr, bool reuseport)
 :loop_(loop),
  acceptSocket_(sockets::createNonblockingOrDie(listenAddr.family())),                         //       socket
  acceptChannel_(loop,acceptSocket_.fd()),
  listenning_(false)
 {
     acceptSocket_.setReuseAddr(true);
+    acceptSocket_.setReusePort(reuseport);
     acceptSocket_.bindAddress(listenAddr);                                                    //        bind
     acceptChannel_.setReadCallback(boost::bind(&Acceptor::handleRead,this));// bind
 }

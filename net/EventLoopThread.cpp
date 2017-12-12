@@ -36,7 +36,7 @@ EventLoop* EventLoopThread::startLoop()
         MutexLockGuard lock(mutex_);
         while (loop_ == NULL)
         {
-            cond_.wait();//等待创建好当前IO线程
+            cond_.wait();//等待创建好当前IO线程(完成EventLoop对象) 才返回Loop_通知主线程创建完成
         }
     }
 
@@ -44,7 +44,7 @@ EventLoop* EventLoopThread::startLoop()
 }
 
 
-
+// 线程函数
 void EventLoopThread::threadFunc()
 {
     EventLoop loop;//创建EventLoop对象。注意，在栈上

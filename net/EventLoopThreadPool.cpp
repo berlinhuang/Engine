@@ -35,11 +35,16 @@ void EventLoopThreadPool::start(const ThreadInitCallback& cb)
         char buf[name_.size() + 32];
         snprintf(buf, sizeof buf, "%s%d", name_.c_str(), i);
         EventLoopThread* t = new EventLoopThread(cb, buf);
-        threads_.push_back(t);// ptr_vector< EventLoopThread >  threads_;
-        loops_.push_back(t->startLoop());//std::vector<EventLoop*> loops_;  EventLoop* EventLoopThread::startLoop()
+
+        //ptr_vector< EventLoopThread >  threads_;
+        threads_.push_back(t);//
+
+        //std::vector<EventLoop*> loops_;  EventLoop* EventLoopThread::startLoop()
+        loops_.push_back(t->startLoop());// 启动start EventLoopThread线程，在进入事件循环之前，会调用cb
     }
     if (numThreads_ == 0 && cb)
     {
+        // 只有一个EventLoop，在这个EventLoop进入事件循环之前，调用cb
         cb(baseLoop_);
     }
 }
@@ -54,7 +59,8 @@ EventLoop* EventLoopThreadPool::getNextLoop()
     // std::vector<EventLoop*> loops_;
     if (!loops_.empty())
     {
-        // round-robin
+        // 如果loops_为空，则loop指向baseLoop_
+        // 如果不为空，按照round-robin（RR，轮叫）的调度方式选择一个EventLoop
         loop = loops_[next_];//
         ++next_;
         if (implicit_cast<size_t>(next_) >= loops_.size())
@@ -62,7 +68,7 @@ EventLoop* EventLoopThreadPool::getNextLoop()
             next_ = 0;
         }
     }
-    return loop;// return  loops_[i]
+    return loop;// return  loops_[i]  // 如果只有一个线程这里返回的就是主线程
 }
 
 EventLoop* EventLoopThreadPool::getLoopForHash(size_t hashCode)
@@ -90,7 +96,5 @@ std::vector<EventLoop*> EventLoopThreadPool::getAllLoops()
     {
         return loops_;
     }
-
-
 }
 

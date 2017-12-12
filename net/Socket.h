@@ -27,6 +27,8 @@ public:
 
     void setReuseAddr(bool on);
 
+    void setReusePort(bool on);
+
     void shutdownWrite();
 
 

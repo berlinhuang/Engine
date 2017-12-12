@@ -181,13 +181,13 @@ bool EventLoop::hasChannel(Channel* channel)
 
 void EventLoop::runInLoop(const Functor& cb)
 {
-    if (isInLoopThread())
+    if (isInLoopThread())// 同步IO
     {
-        cb();
+        cb();// 如果是当前线程 调用同步cb
     }
-    else
+    else// 异步用来计算
     {
-        queueInLoop(cb);
+        queueInLoop(cb);// 如果是其他线程调用 则异步地将cb添加到队列中
     }
 }
 
@@ -197,7 +197,7 @@ void EventLoop::queueInLoop(const Functor& cb)
         MutexLockGuard lock(mutex_);//其他线程调用必须获得锁
         pendingFunctors_.push_back(cb);
     }
-    //如果当前调用queueInLoop调用不是I/O线程，那么唤醒该I/O线程，以便I/O线程及时处理。
+    //如果当前调用queueInLoop调用者不是I/O线程，那么唤醒该I/O线程，以便I/O线程及时处理。
     //或者调用的线程是当前I/O线程，并且此时调用pendingfunctor，需要唤醒
     //只有当前I/O线程的事件回调中调用queueInLoop才不需要唤醒
     if (!isInLoopThread() || callingPendingFunctors_)

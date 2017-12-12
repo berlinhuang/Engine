@@ -24,7 +24,7 @@ int main()
     InetAddress listenAddr(9981);
     EventLoop loop;
 
-    Acceptor acceptor(&loop, listenAddr);// socket bind
+    Acceptor acceptor(&loop, listenAddr, false);// socket bind
     acceptor.setNewConnectionCallback(newConnection);
     acceptor.listen();//listen
 

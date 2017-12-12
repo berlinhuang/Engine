@@ -9,17 +9,30 @@
 #include "./../base/Atomic.h"
 #include <map>
 #include <boost/scoped_ptr.hpp>
+#include <boost/shared_ptr.hpp>
 
 class EventLoop;
 class InetAddress;
 class Acceptor;
+class EventLoopThreadPool;
 
 class TcpServer {
 public:
-    TcpServer(EventLoop* loop, const InetAddress& listenAddr, const string& nameArg);
+    typedef boost::function<void(EventLoop*)> ThreadInitCallback;
+    enum Option
+    {
+        kNoReusePort,
+        kReusePort,
+    };
+    TcpServer(EventLoop* loop, const InetAddress& listenAddr, const string& nameArg, Option option = kNoReusePort);
     ~TcpServer();
 
     void start();
+    void setThreadNum(int numThreads);
+
+    const string& ipPort() const { return ipPort_; }
+    const string& name() const { return name_; }
+    EventLoop* getLoop() const { return loop_; }
 
     void setConnectionCallback(const ConnectionCallback& cb)
     { connectionCallback_= cb; }
@@ -34,9 +47,11 @@ private:
     void newConnection(int sockfd, const InetAddress& peerAddr);
     void removeConnection(const TcpConnectionPtr& conn);
     void removeConnectionInLoop(const TcpConnectionPtr& conn);
+
     EventLoop* loop_;
     const std::string name_;
     const string ipPort_;
+
     boost::scoped_ptr<Acceptor> acceptor_;
 
     AtomicInt32 started_;
@@ -52,9 +67,9 @@ private:
 
     WriteCompleteCallback writeCompleteCallback_;
 
+    ThreadInitCallback threadInitCallback_;
 
-
-
+    boost::shared_ptr<EventLoopThreadPool> threadPool_;
 };
 
 
