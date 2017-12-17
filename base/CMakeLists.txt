@@ -13,7 +13,7 @@ set(base_SRCS
         FileUtil.cpp
         LogFile.cpp
         ProcessInfo.cpp
-        )
+        AsyncLogging.cpp )
 add_library(engine_base ${base_SRCS})
 target_link_libraries(engine_base pthread)
 

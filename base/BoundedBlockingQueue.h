@@ -4,6 +4,7 @@
 
 #ifndef ENGINE_BOUNDEDBLOCKINGQUEUE_H
 #define ENGINE_BOUNDEDBLOCKINGQUEUE_H
+
 #include <boost/circular_buffer.hpp>
 #include "./Mutex.h"
 #include "./Condition.h"
@@ -13,7 +14,7 @@ template <typename T>
 class BuoundedBlockingQueue
 {
 public:
-    explicit BoundedBlockingQueue(int maxSize)
+    explicit BoundedBlockingQueue(int maxSize)//有界的阻塞队列
     :mutex_(),
      notEmpty_(mutex_),
      notFull_(mutex_),
@@ -78,6 +79,6 @@ private:
     mutable MutexLock mutex_;
     Condition notEmpty_;
     Condition notFull_;
-    boost::circular_buffer<T> queue_;
+    boost::circular_buffer<T> queue_;//使用boost的环形缓冲区
 };
 #endif //ENGINE_BOUNDEDBLOCKINGQUEUE_H

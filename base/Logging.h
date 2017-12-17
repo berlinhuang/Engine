@@ -71,7 +71,7 @@ public:
     typedef void (*OutputFunc)( const char* msg, int len);
     typedef void (*FlushFunc)();
 
-    static void setOutPut(OutputFunc);
+    static void setOutput(OutputFunc);
     static void setFlush(FlushFunc);
 //    static void setTimeZone(const TimeZone& tz);
 

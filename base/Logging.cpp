@@ -184,7 +184,7 @@ Logger::~Logger()
     }
 }
 
-void Logger::setOutPut(OutputFunc out)
+void Logger::setOutput(OutputFunc out)
 {
     g_output = out;
 

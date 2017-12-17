@@ -50,3 +50,6 @@ add_executable(MyProcessInfo MyProcessInfo.cpp)
 target_link_libraries(MyProcessInfo engine_base)
 
 add_executable(MySFINAE  MySFINAE.cpp)
+
+add_executable(MyAsyncLogging MyAsyncLogging.cpp)
+target_link_libraries(MyAsyncLogging engine_base)

@@ -31,7 +31,7 @@ void logInThread()
 
 void bench(const char* type)
 {
-    Logger::setOutPut(dummyOutPut);
+    Logger::setOutput(dummyOutPut);
 }
 
 int main()
