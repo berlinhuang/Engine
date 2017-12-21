@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <time.h>
 #include <string>
+#include "Type.h"
 
 using std::string;
 class Timestamp
