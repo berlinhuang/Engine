@@ -6,9 +6,12 @@
 #define ENGINE_BUFFER_H
 
 #include "./../base/StringPiece.h"
+#include "./../base/Type.h"
+#include "./../net/Endian.h"
+
 #include <vector>
 #include <assert.h>
-#include "./../base/Type.h"
+
 
 
 /// @code
@@ -86,6 +89,18 @@ public:
         append(str.data(), str.size());
     }
 
+    void append(const void* data, size_t len)
+    {
+        append(static_cast<const char*>(data), len);
+    }
+
+    void appendInt32(int32_t x)
+    {
+        int32_t  be32 = sockets::hostToNetwork32(x);
+        append(&be32, sizeof be32);
+    }
+
+
 //////////////////////////////////
     void retrieveAll()
     {
@@ -122,6 +137,17 @@ public:
         return retrieveAsString(readableBytes());
     }
 
+    int32_t peekInt32() const
+    {
+        assert(readableBytes()>=sizeof(int32_t));
+        int32_t be32 = 0;
+        ::memcpy(&be32, peek(), sizeof be32);
+        return sockets::networkToHost32(be32);
+    }
+
+
+
+
 /////////////////////////////////////////////
     void prepend(const void* /*restrict*/ data, size_t len)
     {
@@ -142,15 +168,16 @@ public:
     ssize_t readFd(int fd, int* savedErrno);
 
 
+    char* beginWrite()
+    {
+        return begin() + writerIndex_;
+    }
+
+
 private:
     const char* begin() const
     {
         return &*buffer_.begin();
-    }
-
-    char* beginWrite()
-    {
-        return begin() + writerIndex_;
     }
 
 

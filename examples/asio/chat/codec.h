@@ -7,7 +7,7 @@
 
 #include "./../../../net/TcpConnection.h"
 #include "./../../../net/Buffer.h"
-#include "./../../../net/Endian.h"
+//#include "./../../../net/Endian.h"
 #include "./../../../base/Logging.h"
 
 #include <boost/function.hpp>
