@@ -14,6 +14,11 @@
 #include "./../../../net/TcpConnection.h"
 
 
+/// +--------------------------------------------------------------------------+
+/// | len          |  nameLen     |  message name  | protobuf data | checkSum  |
+/// | 消息类型名长度 |  消息类型名长度 |  消息类型名     |  消息体数据     | 校验和     |
+/// +-------------------+------------------+-----------------------------------+
+
 
 typedef boost::shared_ptr<google::protobuf::Message> MessagePtr;
 

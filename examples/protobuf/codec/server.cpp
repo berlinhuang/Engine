@@ -24,10 +24,12 @@ public:
     QueryServer(EventLoop* loop, const InetAddress& listenAddr)
             : server_(loop, listenAddr, "QueryServer"),
               dispatcher_(boost::bind(&QueryServer::onUnknownMessage, this, _1, _2, _3)),
+            //反序列化后的消息发送给ProtobufDispatcher::onProtobufMessage
               codec_(boost::bind(&ProtobufDispatcher::onProtobufMessage, &dispatcher_, _1, _2, _3))
     {
         dispatcher_.registerMessageCallback<Engine::Query>( boost::bind(&QueryServer::onQuery, this, _1, _2, _3));
         dispatcher_.registerMessageCallback<Engine::Answer>( boost::bind(&QueryServer::onAnswer, this, _1, _2, _3));
+
         server_.setConnectionCallback( boost::bind(&QueryServer::onConnection, this, _1));
         server_.setMessageCallback( boost::bind(&ProtobufCodec::onMessage, &codec_, _1, _2, _3));
     }
@@ -45,17 +47,13 @@ private:
                  << (conn->connected() ? "UP" : "DOWN");
     }
 
-    void onUnknownMessage(const TcpConnectionPtr& conn,
-                          const MessagePtr& message,
-                          Timestamp)
+    void onUnknownMessage(const TcpConnectionPtr& conn, const MessagePtr& message, Timestamp)
     {
         LOG_INFO << "onUnknownMessage: " << message->GetTypeName();
         conn->shutdown();
     }
 
-    void onQuery(const TcpConnectionPtr& conn,
-                 const QueryPtr& message,
-                 Timestamp)
+    void onQuery(const TcpConnectionPtr& conn, const QueryPtr& message, Timestamp)
     {
         LOG_INFO << "onQuery:\n" << message->GetTypeName() << message->DebugString();
         Engine::Answer answer;
@@ -69,9 +67,7 @@ private:
         conn->shutdown();
     }
 
-    void onAnswer(const TcpConnectionPtr& conn,
-                  const AnswerPtr& message,
-                  Timestamp)
+    void onAnswer(const TcpConnectionPtr& conn, const AnswerPtr& message, Timestamp)
     {
         LOG_INFO << "onAnswer: " << message->GetTypeName();
         conn->shutdown();

@@ -24,8 +24,7 @@ google::protobuf::Message* messageToSend;
 class QueryClient
 {
 public:
-    QueryClient(EventLoop* loop,
-                const InetAddress& serverAddr)
+    QueryClient(EventLoop* loop, const InetAddress& serverAddr)
             : loop_(loop),
               client_(loop, serverAddr, "QueryClient"),
               dispatcher_(boost::bind(&QueryClient::onUnknownMessage, this, _1, _2, _3)),
@@ -33,6 +32,7 @@ public:
     {
         dispatcher_.registerMessageCallback<Engine::Answer>( boost::bind(&QueryClient::onAnswer, this, _1, _2, _3));
         dispatcher_.registerMessageCallback<Engine::Empty>( boost::bind(&QueryClient::onEmpty, this, _1, _2, _3));
+
         client_.setConnectionCallback( boost::bind(&QueryClient::onConnection, this, _1));
         client_.setMessageCallback( boost::bind(&ProtobufCodec::onMessage, &codec_, _1, _2, _3));
     }
@@ -60,23 +60,17 @@ private:
         }
     }
 
-    void onUnknownMessage(const TcpConnectionPtr&,
-                          const MessagePtr& message,
-                          Timestamp)
+    void onUnknownMessage(const TcpConnectionPtr&, const MessagePtr& message, Timestamp)
     {
         LOG_INFO << "onUnknownMessage: " << message->GetTypeName();
     }
 
-    void onAnswer(const TcpConnectionPtr&,
-                  const AnswerPtr& message,
-                  Timestamp)
+    void onAnswer(const TcpConnectionPtr&, const AnswerPtr& message, Timestamp)
     {
         LOG_INFO << "onAnswer:\n" << message->GetTypeName() << message->DebugString();
     }
 
-    void onEmpty(const TcpConnectionPtr&,
-                 const EmptyPtr& message,
-                 Timestamp)
+    void onEmpty(const TcpConnectionPtr&, const EmptyPtr& message, Timestamp)
     {
         LOG_INFO << "onEmpty: " << message->GetTypeName();
     }

@@ -19,9 +19,26 @@ set_source_files_properties(query.pb.cpp PROPERTIES COMPILE_FLAGS "-Wno-conversi
 include_directories(${PROJECT_BINARY_DIR})
 
 add_library(query_proto query.pb.cpp)
-
 link_directories(/usr/local/protobuf/lib/)
 target_link_libraries(query_proto protobuf pthread)
+
+set_source_files_properties(query.pb.cpp PROPERTIES COMPILE_FLAGS "-Wno-conversion -Wno-shadow")
+include_directories(${PROJECT_BINARY_DIR})
+
+
+add_executable(protobuf_codec_test codec_test.cpp)
+set_target_properties(protobuf_codec_test PROPERTIES COMPILE_FLAGS "-Wno-error=shadow")
+target_link_libraries(protobuf_codec_test protobuf_codec query_proto)
+
+
+add_executable(protobuf_dispatcher_lite_test dispatcher_lite_test.cpp)
+set_target_properties(protobuf_dispatcher_lite_test PROPERTIES COMPILE_FLAGS "-Wno-error=shadow")
+target_link_libraries(protobuf_dispatcher_lite_test query_proto)
+
+
+add_executable(protobuf_dispatcher_test dispatcher_test.cpp)
+set_target_properties(protobuf_dispatcher_test PROPERTIES COMPILE_FLAGS "-Wno-error=shadow")
+target_link_libraries(protobuf_dispatcher_test query_proto)
 
 
 add_executable(protobuf_server server.cpp)

@@ -87,10 +87,7 @@ const string& ProtobufCodec::errorCodeToString(ErrorCode errorCode)
     }
 }
 
-void ProtobufCodec::defaultErrorCallback(const TcpConnectionPtr& conn,
-                                         Buffer* buf,
-                                         Timestamp,
-                                         ErrorCode errorCode)
+void ProtobufCodec::defaultErrorCallback(const TcpConnectionPtr& conn, Buffer* buf, Timestamp, ErrorCode errorCode)
 {
     LOG_ERROR << "ProtobufCodec::defaultErrorCallback - " << errorCodeToString(errorCode);
     if (conn && conn->connected())
@@ -106,12 +103,10 @@ int32_t asInt32(const char* buf)
     return sockets::networkToHost32(be32);
 }
 
-void ProtobufCodec::onMessage(const TcpConnectionPtr& conn,
-                              Buffer* buf,
-                              Timestamp receiveTime)
+void ProtobufCodec::onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp receiveTime)
 {
     while (buf->readableBytes() >= kMinMessageLen + kHeaderLen)
-    {
+    {   // 1. 获取消息长度 (头四个字节)
         const int32_t len = buf->peekInt32();
         if (len > kMaxMessageLen || len < kMinMessageLen)
         {
@@ -121,10 +116,13 @@ void ProtobufCodec::onMessage(const TcpConnectionPtr& conn,
         else if (buf->readableBytes() >= implicit_cast<size_t>(len + kHeaderLen))
         {
             ErrorCode errorCode = kNoError;
+            // 2. parse生成具体消息
             MessagePtr message = parse(buf->peek()+kHeaderLen, len, &errorCode);
             if (errorCode == kNoError && message)
             {
+                // 3. 调用消息处理函数
                 messageCallback_(conn, message, receiveTime);
+                // 4. 从缓冲区中删除已处理的消息字节数据
                 buf->retrieve(kHeaderLen+len);
             }
             else
@@ -139,14 +137,16 @@ void ProtobufCodec::onMessage(const TcpConnectionPtr& conn,
         }
     }
 }
-
+//根据消息类型名创建一个消息
 google::protobuf::Message* ProtobufCodec::createMessage(const std::string& typeName)
 {
     google::protobuf::Message* message = NULL;
+    //获取 DescriptorPool 对象         获取 message descriptor
     const google::protobuf::Descriptor* descriptor =
             google::protobuf::DescriptorPool::generated_pool()->FindMessageTypeByName(typeName);
     if (descriptor)
     {
+        //获取 MessageFactory 对象   获取 message prototype 并构建 message 对象
         const google::protobuf::Message* prototype =
                 google::protobuf::MessageFactory::generated_factory()->GetPrototype(descriptor);
         if (prototype)
@@ -156,31 +156,39 @@ google::protobuf::Message* ProtobufCodec::createMessage(const std::string& typeN
     }
     return message;
 }
-
+/**
+ *
+ * @param buf 从namelen开始
+ * @param len 消息长度
+ * @param error
+ * @return
+ */
 MessagePtr ProtobufCodec::parse(const char* buf, int len, ErrorCode* error)
 {
     MessagePtr message;
 
     // check sum
+    // 1. 检查校验和
     int32_t expectedCheckSum = asInt32(buf + len - kHeaderLen);
-    int32_t checkSum = static_cast<int32_t>(
-            ::adler32(1,
-                      reinterpret_cast<const Bytef*>(buf),
-                      static_cast<int>(len - kHeaderLen)));
+    int32_t checkSum = static_cast<int32_t>(//adler32算法 adler32 of above
+            ::adler32(1, reinterpret_cast<const Bytef*>(buf), static_cast<int>(len - kHeaderLen)));
     if (checkSum == expectedCheckSum)
     {
         // get message type name
+        // 2. 获取消息类型名长度
         int32_t nameLen = asInt32(buf);
         if (nameLen >= 2 && nameLen <= len - 2*kHeaderLen)
         {
             std::string typeName(buf + kHeaderLen, buf + kHeaderLen + nameLen - 1);
             // create message object
+            // 4. 根据消息类型名创建一个消息
             message.reset(createMessage(typeName));
             if (message)
             {
                 // parse from buffer
                 const char* data = buf + kHeaderLen + nameLen;
                 int32_t dataLen = len - nameLen - 2*kHeaderLen;
+                // 5. 从原始字节流中反序列化出消息数据
                 if (message->ParseFromArray(data, dataLen))
                 {
                     *error = kNoError;

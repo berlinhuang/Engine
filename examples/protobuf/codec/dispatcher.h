@@ -49,7 +49,7 @@ public:
 
     virtual void onMessage(const TcpConnectionPtr& conn, const MessagePtr& message, Timestamp receiveTime) const
     {
-        boost::shared_ptr<T> concrete = down_pointer_cast<T>(message);
+        boost::shared_ptr<T> concrete = down_pointer_cast<T>(message);//消息类型转换
         assert(concrete != NULL);
         callback_(conn, concrete, receiveTime);
     }
@@ -69,28 +69,44 @@ public:
 
     }
 
+    /**
+     *  codec反序列化后调用
+     *  向上类型转换找到消息类型 根据每个类型的descriptor来从一张表(map callbacks_)中查找处理函数
+     * @param conn
+     * @param message
+     * @param receiveTime
+     */
     void onProtobufMessage(const TcpConnectionPtr& conn, const MessagePtr& message, Timestamp receiveTime) const
     {
         CallbackMap::const_iterator it = callbacks_.find(message->GetDescriptor());
         if (it != callbacks_.end())
         {
-            it->second->onMessage(conn, message, receiveTime);
+            it->second->onMessage(conn, message, receiveTime);//Callback::onMessage
         }
         else
         {
-            defaultCallback_(conn, message, receiveTime);
+            defaultCallback_(conn, message, receiveTime);//找不到，就调用 defaultCallback
         }
     }
 
+
+  /**
+   * 注册相应的具体类型的回调函数
+   * @tparam T
+   * @param callback
+   */
+    // T Engine::Query Engine::Answer
+    // Server.cpp    dispatcher_.registerMessageCallback<Engine::Query>( boost::bind(&QueryServer::onQuery, this, _1, _2, _3));
     template<typename T>
     void registerMessageCallback(const typename CallbackT<T>::ProtobufMessageTCallback& callback)
     {
-        boost::shared_ptr<CallbackT<T> > pd(new CallbackT<T>(callback));
-        callbacks_[T::descriptor()] = pd;
+        boost::shared_ptr<CallbackT<T> > pd(new CallbackT<T>(callback));//根据回调生成相应的function
+        callbacks_[T::descriptor()] = pd;//注册
     }
 
 
 private:
+    //映射  Descriptor => Callback
     typedef std::map<const google::protobuf::Descriptor*, boost::shared_ptr<Callback> > CallbackMap;
     CallbackMap callbacks_;
     ProtobufMessageCallback defaultCallback_;

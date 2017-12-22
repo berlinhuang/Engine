@@ -108,6 +108,11 @@ public:
         writerIndex_ = kCheapPrepend;
     }
 
+    void retrieveInt32()
+    {
+        retrieve(sizeof(int32_t));
+    }
+
     const char* peek() const
     { return begin() + readerIndex_; }
 
@@ -136,6 +141,15 @@ public:
     {
         return retrieveAsString(readableBytes());
     }
+
+
+    int32_t readInt32()
+    {
+        int32_t result = peekInt32();
+        retrieveInt32();
+        return result;
+    }
+
 
     int32_t peekInt32() const
     {
