@@ -21,20 +21,15 @@ typedef boost::shared_ptr<Engine::Answer> AnswerPtr;
 class QueryServer
 {
 public:
-    QueryServer(EventLoop* loop,
-                const InetAddress& listenAddr)
+    QueryServer(EventLoop* loop, const InetAddress& listenAddr)
             : server_(loop, listenAddr, "QueryServer"),
               dispatcher_(boost::bind(&QueryServer::onUnknownMessage, this, _1, _2, _3)),
               codec_(boost::bind(&ProtobufDispatcher::onProtobufMessage, &dispatcher_, _1, _2, _3))
     {
-        dispatcher_.registerMessageCallback<Engine::Query>(
-                boost::bind(&QueryServer::onQuery, this, _1, _2, _3));
-        dispatcher_.registerMessageCallback<Engine::Answer>(
-                boost::bind(&QueryServer::onAnswer, this, _1, _2, _3));
-        server_.setConnectionCallback(
-                boost::bind(&QueryServer::onConnection, this, _1));
-        server_.setMessageCallback(
-                boost::bind(&ProtobufCodec::onMessage, &codec_, _1, _2, _3));
+        dispatcher_.registerMessageCallback<Engine::Query>( boost::bind(&QueryServer::onQuery, this, _1, _2, _3));
+        dispatcher_.registerMessageCallback<Engine::Answer>( boost::bind(&QueryServer::onAnswer, this, _1, _2, _3));
+        server_.setConnectionCallback( boost::bind(&QueryServer::onConnection, this, _1));
+        server_.setMessageCallback( boost::bind(&ProtobufCodec::onMessage, &codec_, _1, _2, _3));
     }
 
     void start()
