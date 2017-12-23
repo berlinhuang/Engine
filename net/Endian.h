@@ -4,10 +4,8 @@
 
 #ifndef ENGINE_ENDIAN_H
 #define ENGINE_ENDIAN_H
-
-#endif //ENGINE_ENDIAN_H
-
 #include <endian.h>
+#include <stdint.h>
 
 namespace sockets
 {
@@ -32,3 +30,5 @@ namespace sockets
         return be32toh(net32);
     }
 }
+
+#endif //ENGINE_ENDIAN_H

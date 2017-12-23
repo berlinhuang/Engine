@@ -6,6 +6,10 @@
 #include "SocketsOps.h"
 #include "InetAddress.h"
 #include "./../base/Logging.h"
+
+#include <netinet/tcp.h>
+
+
 Socket::~Socket()
 {
     sockets::close(sockfd_);
@@ -67,4 +71,13 @@ void Socket::setReusePort(bool on)
 void Socket::shutdownWrite()
 {
     sockets::shutdownWrite(sockfd_);
+}
+
+
+void Socket::setTcpNoDelay(bool on)
+{
+    int optval = on ? 1 : 0;
+    ::setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY,
+                 &optval, static_cast<socklen_t>(sizeof optval));
+    // FIXME CHECK
 }

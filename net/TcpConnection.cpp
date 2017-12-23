@@ -30,6 +30,7 @@ TcpConnection::TcpConnection(EventLoop* loop, const string& nameArg, int sockfd,
 :loop_(CHECK_NOTNULL(loop)),
  name_(nameArg),
  state_(kConnecting),
+ reading_(true),
  socket_(new Socket(sockfd)),
  channel_(new Channel(loop,sockfd)),
  localAddr_(localAddr),
@@ -198,6 +199,11 @@ void TcpConnection::sendInLoop(const StringPiece& message)
     sendInLoop(message.data(), message.size());
 }
 
+void TcpConnection::send(const void* data, int len)
+{
+    send(StringPiece(static_cast<const char*>(data), len));
+}
+
 void TcpConnection::send(const StringPiece& message)
 {
     if (state_ == kConnected)
@@ -327,3 +333,38 @@ void TcpConnection::handleWrite()
 
 
 
+void TcpConnection::setTcpNoDelay(bool on)
+{
+    socket_->setTcpNoDelay(on);
+}
+
+void TcpConnection::startRead()
+{
+    loop_->runInLoop(boost::bind(&TcpConnection::startReadInLoop, this));
+}
+
+void TcpConnection::startReadInLoop()
+{
+    loop_->assertInLoopThread();
+    if (!reading_ || !channel_->isReading())
+    {
+        channel_->enableReading();
+        reading_ = true;
+    }
+}
+
+
+void TcpConnection::stopRead()
+{
+    loop_->runInLoop(boost::bind(&TcpConnection::stopReadInLoop, this));
+}
+
+void TcpConnection::stopReadInLoop()
+{
+    loop_->assertInLoopThread();
+    if (reading_ || channel_->isReading())
+    {
+        channel_->disableReading();
+        reading_ = false;
+    }
+}

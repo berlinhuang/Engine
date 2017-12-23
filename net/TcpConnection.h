@@ -13,6 +13,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/any.hpp>
 
 //class InetAddress;
 class EventLoop;
@@ -58,6 +59,15 @@ public:
         highWaterMark_ = highWaterMark;
     }
 
+    bool isReading() const { return reading_; };
+    void setContext(const boost::any& context) { context_ = context; }
+    boost::any* getMutableContext()   { return &context_; }
+
+    const boost::any& getContext() const
+    { return context_; }
+
+
+
     void connectEstablished();
     void connectDestroyed();
 
@@ -70,11 +80,18 @@ public:
     void forceClose();
     void forceCloseInLoop();
 
+    void setTcpNoDelay(bool on);
+
     void shutdown();
     void shutdownInLoop();
 
+    void startRead();
+    void stopRead();
+
+
     void sendInLoop(const void* data, size_t len);
     void sendInLoop(const StringPiece& message);
+    void send(const void* message, int len);
     void send(const StringPiece& message);
     void send(Buffer* buf);
 
@@ -93,6 +110,12 @@ private:
     enum StateE { kDisconnected, kConnecting, kConnected, kDisconnecting };
     StateE state_;  // FIXME: use atomic variable
     void setState(StateE s) { state_ = s; }
+
+    void startReadInLoop();
+    void stopReadInLoop();
+
+
+    bool reading_;
 
 
     EventLoop* loop_;
@@ -118,6 +141,8 @@ private:
 
     Buffer inputBuffer_;
     Buffer outputBuffer_;
+
+    boost::any context_;
 };
 typedef boost::shared_ptr<TcpConnection> TcpConnectionPtr;
 

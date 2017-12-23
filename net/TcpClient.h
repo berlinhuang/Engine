@@ -5,11 +5,8 @@
 #ifndef ENGINE_TCPCLIENT_H
 #define ENGINE_TCPCLIENT_H
 
-//#include "InetAddress.h"
-//#include "EventLoop.h"
 #include "TcpConnection.h"
 #include "./../base/Mutex.h"
-//#include "Connector.h"
 
 class Connector;
 

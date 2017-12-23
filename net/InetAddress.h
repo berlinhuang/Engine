@@ -5,7 +5,6 @@
 #ifndef ENGINE_INETADDRESS_H
 #define ENGINE_INETADDRESS_H
 
-
 #include <cstdint>
 #include <netinet/in.h>
 #include "./../base/StringPiece.h"

@@ -94,7 +94,11 @@ InetAddress::InetAddress(StringArg ip, uint16_t port, bool ipv6)
     }
 }
 
-
+uint32_t InetAddress::ipNetEndian() const
+{
+    assert(family() == AF_INET);
+    return addr_.sin_addr.s_addr;
+}
 
 string InetAddress::toIp() const
 {
