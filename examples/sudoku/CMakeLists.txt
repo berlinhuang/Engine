@@ -1,0 +1,2 @@
+add_executable(sudoku_solver_threadpool server_threadpool.cpp sudoku.cpp)
+target_link_libraries(sudoku_solver_threadpool  engine_net engine_base)

@@ -15,7 +15,7 @@ class ThreadPool
 {
 public:
     typedef boost::function<void()> Task;
-    explicit ThreadPool(const string& nameArg);
+    explicit ThreadPool(const string& nameArg = string("ThreadPool"));
     ~ThreadPool();
 
 

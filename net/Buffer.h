@@ -12,6 +12,7 @@
 #include <vector>
 #include <assert.h>
 
+#include <algorithm>//std::search
 
 
 /// @code
@@ -22,6 +23,8 @@
 /// |                   |                  |                  |
 /// 0      <=      readerIndex   <=   writerIndex    <=     size
 /// @endcode
+
+
 class Buffer {
 public:
     static const size_t kCheapPrepend = 8;
@@ -116,6 +119,14 @@ public:
     const char* peek() const
     { return begin() + readerIndex_; }
 
+
+    const char* findCRLF() const
+    {
+        // FIXME: replace with memmem()?
+        const char* crlf = std::search(peek(), beginWrite(), kCRLF, kCRLF+2);
+        return crlf == beginWrite() ? NULL : crlf;
+    }
+
     void retrieve(size_t len)
     {
         assert(len <= readableBytes());
@@ -128,6 +139,15 @@ public:
             retrieveAll();
         }
     }
+
+    void retrieveUntil(const char* end)
+    {
+        assert(peek() <= end);
+        assert(end <= beginWrite());
+        retrieve(end - peek());
+    }
+
+
     //Buffer中所有数据以字符串形式取走
     string retrieveAsString(size_t len)
     {

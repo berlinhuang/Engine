@@ -7,6 +7,7 @@
 
 #include "Callbacks.h"
 #include "./../base/Atomic.h"
+#include "TcpConnection.h"
 #include <map>
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>

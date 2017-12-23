@@ -198,7 +198,24 @@ void TcpConnection::sendInLoop(const StringPiece& message)
     sendInLoop(message.data(), message.size());
 }
 
-
+void TcpConnection::send(const StringPiece& message)
+{
+    if (state_ == kConnected)
+    {
+        if (loop_->isInLoopThread())
+        {
+            sendInLoop(message);
+        }
+        else
+        {
+            loop_->runInLoop(
+                    boost::bind(&TcpConnection::sendInLoop,
+                                this,     // FIXME
+                                message.as_string()));
+            //std::forward<string>(message)));
+        }
+    }
+}
 
 void TcpConnection::send(Buffer* buf)
 {

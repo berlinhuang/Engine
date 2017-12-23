@@ -98,9 +98,9 @@ public:
     }
 
 
-
-
-
+    string as_string() const {
+        return string(data(), size());
+    }
 
 
 

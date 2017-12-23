@@ -75,6 +75,7 @@ public:
 
     void sendInLoop(const void* data, size_t len);
     void sendInLoop(const StringPiece& message);
+    void send(const StringPiece& message);
     void send(Buffer* buf);
 
 
@@ -118,6 +119,6 @@ private:
     Buffer inputBuffer_;
     Buffer outputBuffer_;
 };
-
+typedef boost::shared_ptr<TcpConnection> TcpConnectionPtr;
 
 #endif //ENGINE_TCPCONNECTION_H
