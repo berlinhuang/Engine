@@ -99,8 +99,8 @@ Logger::Impl::Impl(LogLevel level, int savedErrno, const SourceFile &file, int l
 void Logger::Impl::formatTime()
 {
     int64_t microSecondsSinceEpoch = time_.microSecondsSinceEpoch();
-    time_t seconds = static_cast<time_t>(microSecondsSinceEpoch/Timestamp::kMicroSecondsPersecond);
-    int microseconds = static_cast<int>(microSecondsSinceEpoch%Timestamp::kMicroSecondsPersecond);
+    time_t seconds = static_cast<time_t>(microSecondsSinceEpoch/Timestamp::kMicroSecondsPerSecond);
+    int microseconds = static_cast<int>(microSecondsSinceEpoch%Timestamp::kMicroSecondsPerSecond);
 //    printf("%ld\n%ld\n",microSecondsSinceEpoch,seconds);
     if(seconds != t_lastSecond)
     {

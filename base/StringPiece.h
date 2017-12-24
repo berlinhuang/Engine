@@ -103,6 +103,10 @@ public:
     }
 
 
+    void remove_prefix(int n) {
+        ptr_ += n;
+        length_ -= n;
+    }
 
 
 

@@ -62,6 +62,11 @@ void ThreadPool::start(int numThreads)
  *
  */
 
+size_t ThreadPool::queueSize() const
+{
+    MutexLockGuard lock(mutex_);
+    return queue_.size();
+}
 
 void ThreadPool::run(const Task& task)
 {

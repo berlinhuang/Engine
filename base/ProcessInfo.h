@@ -22,7 +22,7 @@ namespace  ProcessInfo
     uid_t euid();
 
     Timestamp startTime();
-    int clockTickPerSecond();
+    int clockTicksPerSecond();
     int pageSize();
     bool isDebugBuild();
 
@@ -37,7 +37,7 @@ namespace  ProcessInfo
     string exePath();
 
     int openedFiles();
-    int maxOPenFiles();
+    int maxOpenFiles();
 
 
     struct CpuTime

@@ -85,8 +85,8 @@ struct timespec howMuchTimeFromNow(Timestamp when)//现在距离超时时间when
         microseconds = 100;
     }
     struct timespec ts;
-    ts.tv_sec = static_cast<time_t>(microseconds / Timestamp::kMicroSecondsPersecond);
-    ts.tv_nsec = static_cast<long>((microseconds % Timestamp::kMicroSecondsPersecond) * 1000);
+    ts.tv_sec = static_cast<time_t>(microseconds / Timestamp::kMicroSecondsPerSecond);
+    ts.tv_nsec = static_cast<long>((microseconds % Timestamp::kMicroSecondsPerSecond) * 1000);
     return ts;
 }
 

@@ -1,2 +1,8 @@
-add_executable(sudoku_solver_threadpool server_threadpool.cpp sudoku.cpp)
+add_executable(sudoku_solver_basic server_basic.cpp sudoku.cpp)
+target_link_libraries(sudoku_solver_basic engine_net engine_base)
+
+add_executable(sudoku_solver_hybrid server_hybrid.cpp sudoku.cpp)
+target_link_libraries(sudoku_solver_hybrid engine_inspect)
+
+add_executable(sudoku_solver_threadpool server_threadpool.cpp sudoku.cpp server_basic.cpp server_hybrid.cpp)
 target_link_libraries(sudoku_solver_threadpool  engine_net engine_base)

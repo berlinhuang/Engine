@@ -36,7 +36,7 @@ public:
 
     time_t secondsSinceEpoch() const
     {
-        return static_cast<time_t >(microSecondsSinceEpoch_/kMicroSecondsPersecond);
+        return static_cast<time_t >(microSecondsSinceEpoch_/kMicroSecondsPerSecond);
     }
 
     static Timestamp now();
@@ -51,10 +51,10 @@ public:
     }
     static Timestamp fromUnixTime(time_t t,int microseconds)
     {
-        return Timestamp(static_cast<int64_t>(t)*kMicroSecondsPersecond + microseconds);
+        return Timestamp(static_cast<int64_t>(t)*kMicroSecondsPerSecond + microseconds);
     }
 
-    static const int kMicroSecondsPersecond = 1000*1000;
+    static const int kMicroSecondsPerSecond = 1000*1000;
 private:
     int64_t microSecondsSinceEpoch_;
 };
@@ -69,13 +69,13 @@ inline bool operator<(Timestamp lhs, Timestamp rhs)
 inline double timeDifference(Timestamp high, Timestamp low)
 {
     int64_t  diff=high.microSecondsSinceEpoch() - low.microSecondsSinceEpoch();
-    return static_cast<double>(diff)/Timestamp::kMicroSecondsPersecond;
+    return static_cast<double>(diff)/Timestamp::kMicroSecondsPerSecond;
 }
 
 
 inline Timestamp addTime(Timestamp timestamp, double seconds)
 {
-    int64_t  delta = static_cast<int64_t>(seconds * Timestamp::kMicroSecondsPersecond);
+    int64_t  delta = static_cast<int64_t>(seconds * Timestamp::kMicroSecondsPerSecond);
     return Timestamp(timestamp.microSecondsSinceEpoch() + delta);
 }
 
