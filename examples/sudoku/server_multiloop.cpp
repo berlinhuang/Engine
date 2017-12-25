@@ -23,11 +23,10 @@ class SudokuServer
       numThreads_(numThreads),
       startTime_(Timestamp::now())
   {
-    server_.setConnectionCallback(
-        boost::bind(&SudokuServer::onConnection, this, _1));
-    server_.setMessageCallback(
-        boost::bind(&SudokuServer::onMessage, this, _1, _2, _3));
-    server_.setThreadNum(numThreads);
+    server_.setConnectionCallback(boost::bind(&SudokuServer::onConnection, this, _1));
+    server_.setMessageCallback(boost::bind(&SudokuServer::onMessage, this, _1, _2, _3));
+    // 设置控制线程的个数 与server_basic的差别在这里
+    server_.setThreadNum(numThreads);  // EventLoopThreadPool::setThreadNum(numThreads)
   }
 
   void start()
@@ -130,8 +129,8 @@ int main(int argc, char* argv[])
   InetAddress listenAddr(9981);
   SudokuServer server(&loop, listenAddr, numThreads);
 
-  server.start();
+  server.start();// server_.start() 1.threadPool_->start();启动线程池控制sub线程  2 loop_->runInLoop(); 主线程启动监听
 
-  loop.loop();
+  loop.loop();// 启动主线程(也就是控制main线程)
 }
 

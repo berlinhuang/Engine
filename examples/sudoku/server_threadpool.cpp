@@ -1,3 +1,8 @@
+/**
+ * 一个IO线程，多个计算thread的模式
+ */
+
+
 #include "sudoku.h"
 
 #include "../../base/Atomic.h"
@@ -21,7 +26,7 @@ class SudokuServer
 {
 public:
     SudokuServer(EventLoop* loop, const InetAddress& listenAddr, int numThreads)
-            : server_(loop, listenAddr, "SudokuServer"),
+            : server_(loop, listenAddr, "SudokuServer"),  // socket bind
               numThreads_(numThreads),
               startTime_(Timestamp::now())
     {
@@ -32,8 +37,8 @@ public:
     void start()
     {
         LOG_INFO << "starting " << numThreads_ << " threads.";
-        threadPool_.start(numThreads_);
-        server_.start();
+        threadPool_.start(numThreads_);                      //使用固定大小线程池   启动工作线程
+        server_.start();                                     //listen
     }
 
 private:
@@ -43,7 +48,11 @@ private:
                   << conn->localAddress().toIpPort() << " is "
                   << (conn->connected() ? "UP" : "DOWN");
     }
-
+    /**
+     * 处理协议格式，并调用 solveSudoku() 求解问题
+     * @param conn
+     * @param buf
+     */
     void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp)
     {
         LOG_DEBUG << conn->name();
@@ -56,7 +65,7 @@ private:
                 string request(buf->peek(), crlf);
                 buf->retrieveUntil(crlf + 2);
                 len = buf->readableBytes();
-                if (!processRequest(conn, request))
+                if (!processRequest(conn, request))// call solveSudoku()
                 {
                     conn->send("Bad Request!\r\n");
                     conn->shutdown();
@@ -119,7 +128,7 @@ private:
     }
 
     TcpServer server_;
-    ThreadPool threadPool_;
+    ThreadPool threadPool_; //使用固定大小线程池 threadPool.threads_
     int numThreads_;
     Timestamp startTime_;
 };
@@ -134,12 +143,12 @@ int main(int argc, char* argv[])
     {
         numThreads = atoi(argv[1]);
     }
-    EventLoop loop;
+    EventLoop loop; //主线程的loop
     InetAddress listenAddr(9981);
     SudokuServer server(&loop, listenAddr, numThreads);
 
-    server.start();
+    server.start(); // 1.TcpServer::start()启动工作线程   2.server_.start(); 主线程启动监听
 
-    loop.loop();
+    loop.loop();    // 启动主线程(也就是控制线程)
 }
 

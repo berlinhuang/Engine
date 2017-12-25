@@ -58,6 +58,7 @@ void TcpServer::start()
 {
     if(started_.getAndSet(1) == 0)
     {
+        //会判断线程个数   多线程直接启动进入循环      单线程(主控线程)先调用回调不进入循环
         threadPool_->start(threadInitCallback_);
         assert(!acceptor_->listenning());
         //自由方法来说，直接boost::bind(函数名, 参数1，参数2，...)

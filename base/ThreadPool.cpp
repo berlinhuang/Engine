@@ -37,6 +37,12 @@ void ThreadPool::stop()
     for_each(threads_.begin(),threads_.end(),boost::bind(&Thread::join,_1));
 }
 
+
+/**
+ * 每个线程绑定 ThreadPool::runThread()函数  push_back到vector
+ * 启动所有工作线程Thread::start() will call pthread_create()
+ * @param numThreads
+ */
 void ThreadPool::start(int numThreads)
 {
     assert(threads_.empty());
@@ -46,7 +52,9 @@ void ThreadPool::start(int numThreads)
     {
         char id[32];
         snprintf(id,sizeof id,"%d",i+1);
-        threads_.push_back(new Thread(boost::bind(&ThreadPool::runInThread,this),name_+id));
+        threads_.push_back(
+                new Thread( boost::bind(&ThreadPool::runInThread,this), name_+id )
+        );
         threads_[i].start();
     }
     if(numThreads==0 && threadInitCallback_)
@@ -55,12 +63,6 @@ void ThreadPool::start(int numThreads)
     }
 }
 
-/*
- *
- *   run()-> push  ---------任务队列----------  front->take()
- *
- *
- */
 
 size_t ThreadPool::queueSize() const
 {
@@ -68,6 +70,11 @@ size_t ThreadPool::queueSize() const
     return queue_.size();
 }
 
+/**
+ *   将任务投放到队列中
+ *   run()-> push  ---------任务队列----------  front->take()
+ *
+ */
 void ThreadPool::run(const Task& task)
 {
     if(threads_.empty())
@@ -87,6 +94,11 @@ void ThreadPool::run(const Task& task)
     }
 }
 
+/**
+ * void ThreadPool::runInThread() 会调用
+ * 从任务队列中取出任务
+ * @return
+ */
 ThreadPool::Task ThreadPool::take()
 {
     MutexLockGuard lock(mutex_);
@@ -114,8 +126,9 @@ bool ThreadPool::isFull() const
 
 }
 
-
-
+/**
+ * 到任务队列中取出任务执行
+ */
 void ThreadPool::runInThread()
 {
     try
