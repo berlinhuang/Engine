@@ -4,5 +4,11 @@ target_link_libraries(sudoku_solver_basic engine_net engine_base)
 add_executable(sudoku_solver_hybrid server_hybrid.cpp sudoku.cpp)
 target_link_libraries(sudoku_solver_hybrid engine_inspect)
 
-add_executable(sudoku_solver_threadpool server_threadpool.cpp sudoku.cpp server_basic.cpp server_hybrid.cpp)
+add_executable(sudoku_solver_threadpool server_threadpool.cpp sudoku.cpp )
 target_link_libraries(sudoku_solver_threadpool  engine_net engine_base)
+
+add_executable(sudoku_solver_prod server_prod.cpp sudoku.cpp)
+target_link_libraries(sudoku_solver_prod engine_inspect)
+
+add_executable(sudoku_solver_multiloop server_multiloop.cpp sudoku.cpp)
+target_link_libraries(sudoku_solver_multiloop  engine_base engine_net)
