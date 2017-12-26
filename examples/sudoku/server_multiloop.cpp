@@ -129,8 +129,8 @@ int main(int argc, char* argv[])
   InetAddress listenAddr(9981);
   SudokuServer server(&loop, listenAddr, numThreads);
 
-  server.start();// server_.start() 1.threadPool_->start();启动线程池控制sub线程  2 loop_->runInLoop(); 主线程启动监听
+  server.start();// server_.start() 1.threadPool_->start();启动线程池numThreads个sub控制线程  2 loop_->runInLoop(); 主线程启动监听
 
-  loop.loop();// 启动主线程(也就是控制main线程)
+  loop.loop();// 启动主线程(也就是main控制线程)
 }
 

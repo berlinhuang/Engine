@@ -81,3 +81,12 @@ void Socket::setTcpNoDelay(bool on)
                  &optval, static_cast<socklen_t>(sizeof optval));
     // FIXME CHECK
 }
+
+
+void Socket::setKeepAlive(bool on)
+{
+    int optval = on ? 1 : 0;
+    ::setsockopt(sockfd_, SOL_SOCKET, SO_KEEPALIVE,
+                 &optval, static_cast<socklen_t>(sizeof optval));
+    // FIXME CHECK
+}

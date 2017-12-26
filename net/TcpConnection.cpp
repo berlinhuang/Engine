@@ -37,10 +37,14 @@ TcpConnection::TcpConnection(EventLoop* loop, const string& nameArg, int sockfd,
  peerAddr_(peerAddr),
  highWaterMark_(64*1024*1024)
 {
-    channel_->setReadCallback(boost::bind(&TcpConnection::handleRead,this,_1));//messageCallback_
-    channel_->setWriteCallback(boost::bind(&TcpConnection::handleWrite,this));//writeCompleteCallback_
-    channel_->setCloseCallback(boost::bind(&TcpConnection::handleClose,this));//closeCallback_
+    channel_->setReadCallback(boost::bind(&TcpConnection::handleRead,this,_1)); //messageCallback_  // 通道可读事件到来的时候 回调TcpConnection::handleRead,_1是事件发生时间
+    channel_->setWriteCallback(boost::bind(&TcpConnection::handleWrite,this));  //writeCompleteCallback_
+    channel_->setCloseCallback(boost::bind(&TcpConnection::handleClose,this));  //closeCallback_
     channel_->setErrorCallback(boost::bind(&TcpConnection::handleError,this));
+    LOG_DEBUG << "TcpConnection::ctor[" <<  name_
+              << "] at " << this
+              << " fd=" << sockfd;
+    socket_->setKeepAlive(true);
 }
 
 TcpConnection::~TcpConnection()
@@ -93,11 +97,15 @@ const char* TcpConnection::stateToString() const
 }
 ////////////////////////////////////////
 
+
+// 不能跨线程调用
 void TcpConnection::shutdownInLoop()
 {
     loop_->assertInLoopThread();
-    if (!channel_->isWriting())
+    if (!channel_->isWriting()) //关注POLLOUT事件时处于isWriteing中 不能关闭
     {
+        // 这里关闭了写的一半 连接状态改为kDisconnecting 并没有关闭连接 服务器主动调用shutdown 主动断开连接 客户端read为0
+        // 服务器端会受到POLLHUP | POLLIN
         // we are not writing
         socket_->shutdownWrite();
     }
@@ -149,6 +157,8 @@ void TcpConnection::sendInLoop(const void* data, size_t len)
         LOG_WARN << "disconnected, give up writing";
         return;
     }
+
+    //没有关注可写事件，并且缓冲区数目为0，直接发送
     // if no thing in output queue, try writing directly
     if (!channel_->isWriting() && outputBuffer_.readableBytes() == 0)
     {
@@ -175,9 +185,11 @@ void TcpConnection::sendInLoop(const void* data, size_t len)
         }
     }
 
+    //没有错误，并且还有未写完的数据(说明内核缓冲区满，要将未写完的数据添加到output buffer中)
     assert(remaining <= len);
     if (!faultError && remaining > 0)
     {
+        //如果超过高水位标志，逻辑可能有问题，回调highWaterMarkCallback，不过还是要写
         size_t oldLen = outputBuffer_.readableBytes();
         if (oldLen + remaining >= highWaterMark_
             && oldLen < highWaterMark_
@@ -185,6 +197,8 @@ void TcpConnection::sendInLoop(const void* data, size_t len)
         {
             loop_->queueInLoop(boost::bind(highWaterMarkCallback_, shared_from_this(), oldLen + remaining));
         }
+
+        //把剩余数据追加到outputbuffer，并注册POLLOUT事件
         outputBuffer_.append(static_cast<const char*>(data)+nwrote, remaining);
         if (!channel_->isWriting())
         {
@@ -293,7 +307,7 @@ void TcpConnection::handleError()
 
 }
 
-
+// 内核缓冲区有空间了 回调该函数
 void TcpConnection::handleWrite()
 {
     loop_->assertInLoopThread();

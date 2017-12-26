@@ -37,6 +37,7 @@ EventLoop::EventLoop()
  quit_(false),
  eventHandling_(false),
  callingPendingFunctors_(false),
+ iteration_(0),
  threadId_(CurrentThread::tid()),
  poller_(Poller::newDefaultPoller(this)),
  timerQueue_(new TimerQueue(this)),
@@ -90,14 +91,22 @@ void EventLoop::wakeup()
 void EventLoop::loop()
 {
     assert(!looping_);
-    assertInLoopThread();
+    assertInLoopThread(); // 断言处于当前现场中
     looping_ = true;
     quit_ = false;
+
+    LOG_TRACE<< "EventLoop "<< this << "start looping";
+
     while(!quit_)
     {
         activeChannels_.clear();// typedef std::vector<Channel*> ChannelList;
         // 1.监听并获取待处理的事件，把这些事件放在aciveChannels中
         pollReturnTime_ = poller_->poll(kPollTimeMs, &activeChannels_);
+        ++iteration_;
+        if (Logger::logLevel() <= Logger::TRACE)
+        {
+            printActiveChannels();
+        }
 
         // 2.循环处理所有activeChannels_中的事件
         eventHandling_ = true;
@@ -232,6 +241,15 @@ void EventLoop::cancel(TimerId timerId)
 
 
 
+void EventLoop::printActiveChannels() const
+{
+    for (ChannelList::const_iterator it = activeChannels_.begin();
+         it != activeChannels_.end(); ++it)
+    {
+        const Channel* ch = *it;
+        LOG_TRACE << "{" << ch->reventsToString() << "} ";
+    }
+}
 
 
 

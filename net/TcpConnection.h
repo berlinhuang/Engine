@@ -45,14 +45,10 @@ public:
     const InetAddress& peerAddress() const { return peerAddr_; }
 
     // when accept a new connection on TcpServer::newConnection
-    void setConnectionCallback(const ConnectionCallback& cb)
-    { connectionCallback_ = cb; }
-    void setMessageCallback(const MessageCallback& cb)
-    { messageCallback_ = cb; }
-    void setCloseCallback(const CloseCallback& cb)
-    { closeCallback_ = cb; }
-    void setWriteCompleteCallback(const WriteCompleteCallback& cb)
-    { writeCompleteCallback_ = cb;   }
+    void setConnectionCallback(const ConnectionCallback& cb)   { connectionCallback_ = cb; }
+    void setMessageCallback(const MessageCallback& cb)    { messageCallback_ = cb; }
+    void setCloseCallback(const CloseCallback& cb)    { closeCallback_ = cb; }
+    void setWriteCompleteCallback(const WriteCompleteCallback& cb)    { writeCompleteCallback_ = cb;   }
     void setHighWaterMarkCallback(const HighWaterMarkCallback& cb, size_t highWaterMark)
     {
         highWaterMarkCallback_ = cb;
@@ -134,15 +130,21 @@ private:
 
     ConnectionCallback connectionCallback_;
     MessageCallback messageCallback_;
-    CloseCallback closeCallback_;
-    WriteCompleteCallback writeCompleteCallback_;
-    HighWaterMarkCallback highWaterMarkCallback_;
+    // 数据发送完毕的回调函数 即所有的用户数据都拷贝到内核缓冲区回调该函数
+    // 如果对等方接受不及时 受到通告窗口的控制 内核发送缓存不足 这个时候 就会将用户数据添加到应用层发送缓冲区 outbuffer
+    // 可能会撑爆outbuffer 解决方法:调整发送频率 关注writeCompleteCallback
 
+    // 将所有的数据都发送完 writeCompleteCallback回调 继续发送
+    WriteCompleteCallback writeCompleteCallback_;// 低水位回调函数
+    HighWaterMarkCallback highWaterMarkCallback_;// 高水位回调函数 outbuffer 快满了
 
+    CloseCallback closeCallback_; // 内部的close回调函数
+
+    // 应用层的接收和发送缓冲区
     Buffer inputBuffer_;
     Buffer outputBuffer_;
 
-    boost::any context_;
+    boost::any context_;// boost的any库 可以保持任意的类型 绑定一个未知类型的上下文对象
 };
 typedef boost::shared_ptr<TcpConnection> TcpConnectionPtr;
 

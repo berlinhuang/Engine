@@ -33,6 +33,7 @@ public:
     void updateChannel(Channel* channel);
     void removeChannel(Channel* channel);
     bool hasChannel(Channel* channel);
+    void printActiveChannels() const; //DEBUG
 
     void doPendingFunctors();
     void assertInLoopThread()
@@ -48,6 +49,7 @@ public:
         return threadId_ == CurrentThread::tid();
     }
 
+    int64_t iteration() const { return iteration_; }
 
     static EventLoop* getEventLoopOfCurrentThread();
 
@@ -84,7 +86,7 @@ private:
     mutable MutexLock mutex_;
     std::vector<Functor> pendingFunctors_; // @GuardedBy mutex_
 
-
+    int64_t iteration_;
 };
 
 

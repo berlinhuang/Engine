@@ -12,7 +12,7 @@
 
 ### 1. single process programing model
 
-> Reactor(基于IO multiple)
+> Reactor(基于IO multiplexing)
 - non-blocking IO + IO multiplexing 程序的基本结构是一个事件循环 (event loop)
 ``` c++
    while (!done)
