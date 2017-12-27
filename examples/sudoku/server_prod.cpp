@@ -40,16 +40,12 @@ class SudokuServer : boost::noncopyable
     LOG_INFO << "Use " << numEventLoops << " IO threads.";
     LOG_INFO << "TCP no delay " << nodelay;
 
-    server_.setConnectionCallback(
-        boost::bind(&SudokuServer::onConnection, this, _1));
-    server_.setMessageCallback(
-        boost::bind(&SudokuServer::onMessage, this, _1, _2, _3));
+    server_.setConnectionCallback(boost::bind(&SudokuServer::onConnection, this, _1));
+    server_.setMessageCallback(boost::bind(&SudokuServer::onMessage, this, _1, _2, _3));
     server_.setThreadNum(numEventLoops);
 
-    inspector_.add("sudoku", "stats", boost::bind(&SudokuStat::report, &stat_),
-                   "statistics of sudoku solver");
-    inspector_.add("sudoku", "reset", boost::bind(&SudokuStat::reset, &stat_),
-                   "reset statistics of sudoku solver");
+    inspector_.add("sudoku", "stats", boost::bind(&SudokuStat::report, &stat_), "statistics of sudoku solver");
+    inspector_.add("sudoku", "reset", boost::bind(&SudokuStat::reset, &stat_), "reset statistics of sudoku solver");
   }
 
   void start()
@@ -69,8 +65,7 @@ class SudokuServer : boost::noncopyable
     {
       if (tcpNoDelay_)
         conn->setTcpNoDelay(true);
-      conn->setHighWaterMarkCallback(
-          boost::bind(&SudokuServer::highWaterMark, this, _1, _2), 5 * 1024 * 1024);
+      conn->setHighWaterMarkCallback( boost::bind(&SudokuServer::highWaterMark, this, _1, _2), 5 * 1024 * 1024);
       bool throttle = false;
       conn->setContext(throttle);
     }
@@ -81,8 +76,7 @@ class SudokuServer : boost::noncopyable
     LOG_WARN << conn->name() << " high water mark " << tosend;
     if (tosend < 10 * 1024 * 1024)
     {
-      conn->setHighWaterMarkCallback(
-          boost::bind(&SudokuServer::highWaterMark, this, _1, _2), 10 * 1024 * 1024);
+      conn->setHighWaterMarkCallback( boost::bind(&SudokuServer::highWaterMark, this, _1, _2), 10 * 1024 * 1024);
       conn->setWriteCompleteCallback(boost::bind(&SudokuServer::writeComplete, this, _1));
       bool throttle = true;
       conn->setContext(throttle);
@@ -98,8 +92,7 @@ class SudokuServer : boost::noncopyable
   void writeComplete(const TcpConnectionPtr& conn)
   {
     LOG_INFO << conn->name() << " write complete";
-    conn->setHighWaterMarkCallback(
-        boost::bind(&SudokuServer::highWaterMark, this, _1, _2), 5 * 1024 * 1024);
+    conn->setHighWaterMarkCallback( boost::bind(&SudokuServer::highWaterMark, this, _1, _2), 5 * 1024 * 1024);
     conn->setWriteCompleteCallback(WriteCompleteCallback());
     bool throttle = false;
     conn->setContext(throttle);

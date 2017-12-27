@@ -43,16 +43,12 @@ public:
         LOG_INFO << "Use " << numEventLoops << " IO threads.";
         LOG_INFO << "TCP no delay " << nodelay;
 
-        server_.setConnectionCallback(
-                boost::bind(&SudokuServer::onConnection, this, _1));
-        server_.setMessageCallback(
-                boost::bind(&SudokuServer::onMessage, this, _1, _2, _3));
+        server_.setConnectionCallback( boost::bind(&SudokuServer::onConnection, this, _1));
+        server_.setMessageCallback( boost::bind(&SudokuServer::onMessage, this, _1, _2, _3));
         server_.setThreadNum(numEventLoops);
 
-        inspector_.add("sudoku", "stats", boost::bind(&SudokuStat::report, &stat_),
-                       "statistics of sudoku solver");
-        inspector_.add("sudoku", "reset", boost::bind(&SudokuStat::reset, &stat_),
-                       "reset statistics of sudoku solver");
+        inspector_.add("sudoku", "stats", boost::bind(&SudokuStat::report, &stat_), "statistics of sudoku solver");
+        inspector_.add("sudoku", "reset", boost::bind(&SudokuStat::reset, &stat_), "reset statistics of sudoku solver");
     }
 
     void start()

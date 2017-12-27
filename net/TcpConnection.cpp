@@ -168,7 +168,7 @@ void TcpConnection::sendInLoop(const void* data, size_t len)
             remaining = len - nwrote;
             if (remaining == 0 && writeCompleteCallback_)
             {
-                loop_->queueInLoop(boost::bind(writeCompleteCallback_, shared_from_this()));
+                loop_->queueInLoop(boost::bind(writeCompleteCallback_, shared_from_this())); //output buffer所有的数据都发送完 低水位回调函数
             }
         }
         else // nwrote < 0
@@ -195,14 +195,13 @@ void TcpConnection::sendInLoop(const void* data, size_t len)
             && oldLen < highWaterMark_
             && highWaterMarkCallback_)
         {
-            loop_->queueInLoop(boost::bind(highWaterMarkCallback_, shared_from_this(), oldLen + remaining));
+            loop_->queueInLoop(boost::bind(highWaterMarkCallback_, shared_from_this(), oldLen + remaining));  // outbuffer 快满了
         }
 
-        //把剩余数据追加到outputbuffer，并注册POLLOUT事件
-        outputBuffer_.append(static_cast<const char*>(data)+nwrote, remaining);
+        outputBuffer_.append(static_cast<const char*>(data)+nwrote, remaining); ////把剩余数据追加到outputbuffer
         if (!channel_->isWriting())
         {
-            channel_->enableWriting();
+            channel_->enableWriting(); // 注册POLLOUT事件
         }
     }
 }

@@ -78,7 +78,7 @@ void Connector::connect()
     int savedErrno = (ret == 0) ? 0 : errno;
     switch (savedErrno)
     {
-        case 0:
+        case 0:  //连接成功
         case EINPROGRESS:
         case EINTR:
         case EISCONN:
