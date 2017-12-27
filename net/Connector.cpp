@@ -20,7 +20,7 @@ Connector::Connector(EventLoop *loop, const InetAddress &serverAddr)
  serverAddr_(serverAddr),
  connect_(false),
  state_(kDisconnected),
- retryDelayMs_(kInitRetryDelayMs)
+ retryDelayMs_(kInitRetryDelayMs) //初始化延时
 {
     LOG_DEBUG << "ctor[" << this << "]";
 }
@@ -44,7 +44,7 @@ void Connector::startInLoop()
 {
     loop_->assertInLoopThread();
     assert(state_ == kDisconnected);
-    if(connect_)
+    if(connect_) //调用前必须connect_为true，start()函数中会这么做
     {
         connect();
     }
@@ -63,10 +63,23 @@ void Connector::restart()
     connect_ = true;
     startInLoop();
 }
+
+
+void Connector::stopInLoop()
+{
+    loop_->assertInLoopThread();
+    if (state_ == kConnecting)
+    {
+        setState(kDisconnected);
+        int sockfd = removeAndResetChannel();
+        retry(sockfd);
+    }
+}
+
 void Connector::stop()
 {
     connect_ =false;
-    loop_->queueInLoop(boost::bind(&Connector::startInLoop,this));// FIXME: unsafe
+    loop_->queueInLoop(boost::bind(&Connector::stopInLoop,this));// FIXME: unsafe
     // FIXME: cancel timer
 }
 
@@ -78,10 +91,10 @@ void Connector::connect()
     int savedErrno = (ret == 0) ? 0 : errno;
     switch (savedErrno)
     {
-        case 0:  //连接成功
-        case EINPROGRESS:
+        case 0:             //连接成功
+        case EINPROGRESS:   //连接操作正在进行中，但是仍未完成  这边可以用select来实现超时
         case EINTR:
-        case EISCONN:
+        case EISCONN:       //连接成功
             connecting(sockfd);
             break;
 
@@ -101,7 +114,7 @@ void Connector::connect()
         case EFAULT:
         case ENOTSOCK:
             LOG_SYSERR << "connect error in Connector::startInLoop " << savedErrno;
-            sockets::close(sockfd);
+            sockets::close(sockfd); //这几种情况不能重连，
             break;
 
         default:
@@ -118,11 +131,12 @@ void Connector::connecting(int sockfd)
     setState(kConnecting);
     assert(!channel_);
     channel_.reset(new Channel(loop_, sockfd));
+    //设置可写回调函数，这时候如果socket没有错误，sockfd就处于可写状态
     channel_->setWriteCallback( boost::bind(&Connector::handleWrite, this)); // FIXME: unsafe
     channel_->setErrorCallback( boost::bind(&Connector::handleError, this)); // FIXME: unsafe
     // channel_->tie(shared_from_this()); is not working,
     // as channel_ is not managed by shared_ptr
-    channel_->enableWriting();
+    channel_->enableWriting();  //关注可写事件  
 }
 
 
@@ -193,18 +207,20 @@ void Connector::handleError()
 }
 
 
-
+//重连函数，采用back-off策略重连，也就是退避策略
+//也就是重连时间逐渐延长，0.5s,1s,2s,...一直到30s
 void Connector::retry(int sockfd)
 {
-    sockets::close(sockfd);
+    sockets::close(sockfd);//先关闭连接
     setState(kDisconnected);
     if (connect_)
     {
         LOG_INFO << "Connector::retry - Retry connecting to " << serverAddr_.toIpPort()
                  << " in " << retryDelayMs_
                  << " milliseconds. ";
-        loop_->runAfter(retryDelayMs_/1000.0,  boost::bind(&Connector::startInLoop, shared_from_this()));
-        retryDelayMs_ = std::min(retryDelayMs_ * 2, kMaxRetryDelayMs);
+
+        loop_->runAfter(retryDelayMs_/1000.0,  boost::bind(&Connector::startInLoop, shared_from_this()));  //隔一段时间后重连，重新启用startInLoop
+        retryDelayMs_ = std::min(retryDelayMs_ * 2, kMaxRetryDelayMs);  //间隔时间2倍增长
     }
     else
     {

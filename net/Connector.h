@@ -42,8 +42,8 @@ public:
 
 private:
     enum States{ kDisconnected, kConnecting, kConnected};
-    static const int kMaxRetryDelayMs = 30*1000;
-    static const int kInitRetryDelayMs = 500;
+    static const int kMaxRetryDelayMs = 30*1000;   //默认最大重连时间30000ms
+    static const int kInitRetryDelayMs = 500;  //默认重连延迟时间500ms
 
     void setState(States s) { state_ = s; }
 
