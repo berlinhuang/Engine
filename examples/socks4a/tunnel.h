@@ -28,14 +28,11 @@ class Tunnel : public boost::enable_shared_from_this<Tunnel>
 
   void setup()
   {
-    client_.setConnectionCallback(
-        boost::bind(&Tunnel::onClientConnection, shared_from_this(), _1));
-    client_.setMessageCallback(
-        boost::bind(&Tunnel::onClientMessage, shared_from_this(), _1, _2, _3));
+    client_.setConnectionCallback( boost::bind(&Tunnel::onClientConnection, shared_from_this(), _1));
+    client_.setMessageCallback( boost::bind(&Tunnel::onClientMessage, shared_from_this(), _1, _2, _3));
     serverConn_->setHighWaterMarkCallback(
-        boost::bind(&Tunnel::onHighWaterMarkWeak,
-                    boost::weak_ptr<Tunnel>(shared_from_this()), kServer, _1, _2),
-        1024*1024);
+            boost::bind(&Tunnel::onHighWaterMarkWeak, boost::weak_ptr<Tunnel>(shared_from_this()), kServer, _1, _2),
+            1024*1024);
   }
 
   void connect()
@@ -69,8 +66,7 @@ class Tunnel : public boost::enable_shared_from_this<Tunnel>
     {
       conn->setTcpNoDelay(true);
       conn->setHighWaterMarkCallback(
-          boost::bind(&Tunnel::onHighWaterMarkWeak,
-                      boost::weak_ptr<Tunnel>(shared_from_this()), kClient, _1, _2),
+          boost::bind(&Tunnel::onHighWaterMarkWeak, boost::weak_ptr<Tunnel>(shared_from_this()), kClient, _1, _2),
           1024*1024);
       serverConn_->setContext(conn);
       serverConn_->startRead();
@@ -117,8 +113,8 @@ class Tunnel : public boost::enable_shared_from_this<Tunnel>
       {
         clientConn_->stopRead();
         serverConn_->setWriteCompleteCallback(
-            boost::bind(&Tunnel::onWriteCompleteWeak,
-                        boost::weak_ptr<Tunnel>(shared_from_this()), kServer, _1));
+            boost::bind(&Tunnel::onWriteCompleteWeak, boost::weak_ptr<Tunnel>(shared_from_this()), kServer, _1)
+        );
       }
     }
     else
@@ -127,7 +123,8 @@ class Tunnel : public boost::enable_shared_from_this<Tunnel>
       {
         serverConn_->stopRead();
         clientConn_->setWriteCompleteCallback(
-            boost::bind(&Tunnel::onWriteCompleteWeak, boost::weak_ptr<Tunnel>(shared_from_this()), kClient, _1));
+            boost::bind(&Tunnel::onWriteCompleteWeak, boost::weak_ptr<Tunnel>(shared_from_this()), kClient, _1)
+        );
       }
     }
   }

@@ -172,7 +172,7 @@ typedef union epoll_data
 struct epoll_event
 {
   uint32_t events;	// Epoll events
-epoll_data_t data;	// User data variable
+  epoll_data_t data;	// User data variable
 } __EPOLL_PACKED;
  *
  *
