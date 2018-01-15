@@ -65,7 +65,7 @@ private:
                 string request(buf->peek(), crlf);
                 buf->retrieveUntil(crlf + 2);
                 len = buf->readableBytes();
-                if (!processRequest(conn, request))// call solveSudoku()
+                if (!processRequest(conn, request))// call solveSudoku() and then will 投放到工作线程池中执行
                 {
                     conn->send("Bad Request!\r\n");
                     conn->shutdown();
@@ -104,7 +104,7 @@ private:
 
         if (puzzle.size() == implicit_cast<size_t>(kCells))
         {
-            threadPool_.run(boost::bind(&solve, conn, puzzle, id));
+            threadPool_.run(boost::bind(&solve, conn, puzzle, id));//投放到工作线程池中执行
         }
         else
         {
