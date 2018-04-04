@@ -7,3 +7,49 @@ sudo apt-get install libboost-test-dev
 
 dpkg -S /usr/include/boost/version.hpp  查看boost版本
 libboost1.58-dev:amd64: /usr/include/boost/version.hpp
+
+
+
+
+
+
+#google protobuf
+
+git clone -b 3.2.x --depth 1 https://github.com/google/protobuf.git
+
+apt-get install autoconf automake libtool
+
+tar -xzvf ...
+cd protobuf
+./autogen.sh
+./configure --prefix=/usr/local/protobuf
+make -j8 && make install
+
+vim ~/.profile or vim /etc/profile
+
+####### add protobuf lib path ########
+#(动态库搜索路径) 程序加载运行期间查找动态链接库时指定除了系统默认路径之外的其他
+路径
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/protobuf/lib/
+#(静态库搜索路径) 程序编译期间查找动态链接库时指定查找共享库的路径
+export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/protobuf/lib/
+#执行程序搜索路径
+export PATH=$PATH:/usr/local/protobuf/bin/
+#c程序头文件搜索路径
+export C_INCLUDE_PATH=$C_INCLUDE_PATH:/usr/local/protobuf/include/
+#c++程序头文件搜索路径
+export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:/usr/local/protobuf/include/
+#pkg-config 路径
+export PKG_CONFIG_PATH=/usr/local/protobuf/lib/pkgconfig/
+######################################
+
+
+
+
+
+#zlib
+apt-get install zlib1g-dev
+
+
+#hiredis
+git clone https://github.com/Redis/hiredis.git
