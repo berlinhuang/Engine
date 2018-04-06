@@ -1,6 +1,6 @@
 #include "dispatcher_lite.h"
 
-#include <examples/protobuf/codec/query.pb.h>
+#include "query.pb.h"
 
 #include <iostream>
 
