@@ -179,6 +179,10 @@ public:
         return sockets::networkToHost32(be32);
     }
 
+    StringPiece toStringPiece() const
+    {
+        return StringPiece(peek(), static_cast<int>(readableBytes()));
+    }
 
 
 
