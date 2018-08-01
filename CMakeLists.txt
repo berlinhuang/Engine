@@ -30,3 +30,5 @@ message("USE_EPOLL: " $ENV{USE_EPOLL})
 add_subdirectory(base)
 add_subdirectory(net)
 add_subdirectory(examples)
+
+add_subdirectory(recipes)
