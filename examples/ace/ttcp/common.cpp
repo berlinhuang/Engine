@@ -16,7 +16,7 @@ namespace po = boost::program_options;
 bool parseCommandLine(int argc, char* argv[], Options* opt)
 {
     po::options_description desc("Allowed options");
-    desc.add_options()
+    desc.add_options() //向option_description对象添加选项
             ("help,h", "Help")
             ("port,p", po::value<uint16_t>(&opt->port)->default_value(5001), "TCP port")
             ("length,l", po::value<int>(&opt->length)->default_value(65536), "Buffer length")
@@ -26,11 +26,11 @@ bool parseCommandLine(int argc, char* argv[], Options* opt)
             ("nodelay,D", "set TCP_NODELAY")
             ;
 
-    po::variables_map vm;
-    po::store(po::parse_command_line(argc, argv, desc), vm);
-    po::notify(vm);
+    po::variables_map vm; //容器,用于存储解析后的选项
+    po::store(po::parse_command_line(argc, argv, desc), vm);// 将命令行输入的参数解析出来 desc vm
+    po::notify(vm); //通知variables_map去更新所有的外部变量
 
-    opt->transmit = vm.count("trans");
+    opt->transmit = vm.count("trans");//count()->检测某个选项是否被输入
     opt->receive = vm.count("recv");
     opt->nodelay = vm.count("nodelay");
     if (vm.count("help"))

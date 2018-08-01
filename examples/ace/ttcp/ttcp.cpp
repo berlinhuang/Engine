@@ -51,16 +51,19 @@ namespace trans
             context.session.length = opt.length;
             context.output.appendInt32(opt.length);
             context.output.ensureWritableBytes(opt.length);
+            //write opt.length string
             for (int i = 0; i < opt.length; ++i)
             {
                 context.output.beginWrite()[i] = "0123456789ABCDEF"[i % 16];
             }
             context.output.hasWritten(opt.length);
+
             conn->setContext(context);
 
             SessionMessage sessionMessage = { 0, 0 };
             sessionMessage.number = htonl(opt.number);
             sessionMessage.length = htonl(opt.length);
+
             conn->send(&sessionMessage, sizeof(sessionMessage));
 
             conn->send(context.output.toStringPiece());
@@ -105,6 +108,7 @@ namespace trans
 
 void transmit(const Options& opt)
 {
+    Logger::setLogLevel(Logger::ERROR);
     InetAddress addr(opt.port);
     if (!InetAddress::resolve(opt.host, &addr))
     {
@@ -114,10 +118,8 @@ void transmit(const Options& opt)
     EventLoop loop;
     g_loop = &loop;
     TcpClient client(&loop, addr, "TtcpClient");
-    client.setConnectionCallback(
-            boost::bind(&trans::onConnection, opt, _1));
-    client.setMessageCallback(
-            boost::bind(&trans::onMessage, _1, _2, _3));
+    client.setConnectionCallback(boost::bind(&trans::onConnection, opt, _1));
+    client.setMessageCallback(boost::bind(&trans::onMessage, _1, _2, _3));
     client.connect();
     loop.loop();
     double elapsed = timeDifference(Timestamp::now(), start);
@@ -205,14 +207,13 @@ namespace receiving
 
 void receive(const Options& opt)
 {
+    Logger::setLogLevel(Logger::ERROR);
     EventLoop loop;
     g_loop = &loop;
     InetAddress listenAddr(opt.port);
     TcpServer server(&loop, listenAddr, "TtcpReceive");
-    server.setConnectionCallback(
-            boost::bind(&receiving::onConnection, _1));
-    server.setMessageCallback(
-            boost::bind(&receiving::onMessage, _1, _2, _3));
+    server.setConnectionCallback(boost::bind(&receiving::onConnection, _1));
+    server.setMessageCallback(boost::bind(&receiving::onMessage, _1, _2, _3));
     server.start();
     loop.loop();
 }

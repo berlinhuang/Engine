@@ -31,6 +31,7 @@ struct SessionMessage
     int32_t number;
     int32_t length;
 } __attribute__ ((__packed__));
+//让编译器取消结构在编译过程中的优化对齐,按照实际占用字节数进行对齐，这样子两边都需要使用 __attribute__ ((packed))取消优化对齐，就不会出现对齐的错位现象
 
 struct PayloadMessage
 {
