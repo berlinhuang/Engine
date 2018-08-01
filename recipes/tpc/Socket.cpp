@@ -93,3 +93,17 @@ int Socket::write(const void *buf, int len)
 {
     return ::write(sockfd_, buf, len);
 }
+
+int Socket::connect(const InetAddress &addr)
+{
+    const struct sockaddr_in& saddr = addr.getSockAddrInet();
+    return ::connect(sockfd_, sockaddr_cast(&saddr), sizeof saddr);
+}
+
+void Socket::shutdownWrite()
+{
+    if (::shutdown(sockfd_, SHUT_WR) < 0)
+    {
+        perror("Socket::shutdownWrite");
+    }
+}
