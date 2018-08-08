@@ -56,12 +56,12 @@ void serverReadCallback(int sockfd, Timestamp receiveTime)
         }
         else
         {
-            LOG_ERROR<<"Expect"<<frameLen<<" bytes,wrote "<<nw<<" bytes.";
+            LOG_ERROR<<"Expect "<<frameLen<<" bytes, wrote "<<nw<<" bytes.";
         }
     }
     else
     {
-        LOG_ERROR<<"Expect" <<frameLen<<" bytes, received " <<nr<<" bytes.";
+        LOG_ERROR<<"Expect " <<frameLen<<" bytes, received " <<nr<<" bytes.";
     }
 }
 
@@ -90,7 +90,7 @@ void clientReadCallback(int sockfd, Timestamp receiveTime)
         int64_t their = message[1];
         int64_t back = receiveTime.microSecondsSinceEpoch();
         int64_t mine = (back+send)/2;
-        LOG_INFO<<"round trip"<<back- send<<" clock error "<< their - mine;
+        LOG_INFO<<"round trip "<<back- send<<" clock error "<< their - mine;
     }
     else
     {
