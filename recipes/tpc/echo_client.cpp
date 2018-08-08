@@ -22,7 +22,7 @@ int main(int argc, const char* argv[])
     }
 
     printf("connecting to %s\n",addr.toIpPort().c_str());
-    TcpStreamPtr stream(TcpStream::connect(addr));
+    TcpStreamPtr stream(TcpStream::connect(addr));                                                //connect
     if(!stream)
     {
         perror("");
@@ -34,7 +34,7 @@ int main(int argc, const char* argv[])
 
 
     std::string message(len,'S');
-    int nw = stream->sendAll(message.c_str(),message.size());
+    int nw = stream->sendAll(message.c_str(),message.size());                                   //send
     printf("send %d bytes\n",nw);
 
     if (argc>3)
@@ -64,7 +64,7 @@ int main(int argc, const char* argv[])
         }
     }
     std::vector<char> receive(len);
-    int nr = stream->receiveAll(receive.data(),receive.size());
+    int nr = stream->receiveAll(receive.data(),receive.size());                                  //receive
     printf("received %d bytes\n", nr);
     if(nr!=nw)
     {
